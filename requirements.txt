@@ -4,5 +4,5 @@ pandas
 imageio
 tabulate
 colorama
-
+wandb
 

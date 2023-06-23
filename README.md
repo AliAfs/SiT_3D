@@ -2,11 +2,8 @@
 
 ![](imgs/SiT_.png)
 
-This repository contains the official PyTorch self-supervised pretraining, finetuning, and evaluation codes for SiT (Self-supervised image Transformer).
 
-The finetuning strategy is adopted from [Deit](https://github.com/facebookresearch/deit) 
-
-# Usage
+# Requirements
 - Create an environment
 > conda create -n SiT python=3.8
 - Activate the environment and install the necessary packages
@@ -16,17 +13,18 @@ The finetuning strategy is adopted from [Deit](https://github.com/facebookresear
 
 > pip install -r requirements.txt
 
+# Steps to Run the Code
+Follow the steps below to successfully run the code in this repository:
 
-# Self-supervised pre-training
-> python -m torch.distributed.launch --nproc_per_node=4 --use_env main.py --batch_size 64 --epochs 801 --data-set 'ImageNet' --output_dir 'checkpoints/SSL/ImageNet'
+1. Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
+2. Convert the dice files into compressed numpy arrays using the [`network_final.mlab`](./network_final.mlab) script in MeVisLab. Make sure to specify the output directory in the 'RunPythonScript' module of the network.
+3. Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
+> python main.py --batch_size 16 --epochs 100 --data-location './data'
 
-Self-supervised pre-trained models using SiT can be downloaded from [here](https://drive.google.com/drive/folders/11lGoNZKcMr6A959Yun_MrSlT3j6h-4YI?usp=share_link)
+**Note:** There are more arguments that can be specified!
 
-**Notes:** 
-1. assign the --dataset_location parameter to the location of the downloaded dataset
-2. Set lmbda to high value when pretraining on small datasets, e.g. lmbda=5
+# Reference
 
-If you use this code for a paper, please cite:
 
 ```
 @article{atito2021sit,

@@ -79,8 +79,8 @@ def get_args_parser():
     parser.add_argument('--weight_decay_end', type=float, default=0.1)
     parser.add_argument('--clip_grad', type=float, default=3.0)
     
-    parser.add_argument('--batch_size', default=2, type=int)
-    parser.add_argument('--epochs', default=10, type=int, help='Number of epochs of training.')
+    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--epochs', default=100, type=int, help='Number of epochs of training.')
 
     parser.add_argument("--lr", default=0.0005, type=float, help="Learning rate.")
     parser.add_argument("--warmup_epochs", default=10, type=int, help="Number of epochs for the linear learning-rate warm up.")
@@ -88,11 +88,6 @@ def get_args_parser():
     
 
     # Dataset
-    parser.add_argument('--data_set', default='Pets', type=str, 
-                        choices=['STL10', 'MNIST', 'CIFAR10', 'CIFAR100', 'Flowers', 'Aircraft', 
-                                 'Cars', 'ImageNet5p', 'ImageNet', 'TinyImageNet', 'Pets', 'CUB',
-                                 'PASCALVOC', 'MSCOCO', 'VisualGenome500'], 
-                        help='Name of the dataset.')
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
 
     parser.add_argument('--output_dir', default="checkpoints/vit_small/trial", type=str, help='Path to save logs and checkpoints.')
@@ -134,12 +129,8 @@ def train_SiT(args):
     # prepare dataset
     transform = datasets_utils_test.DataAugmentationSiT(args)
     
-    #if args.data_set == 'ImageNet':
-    #    dataset = torchvision.datasets.ImageFolder(args.data_location, transform=transform)
-    #else:
-    #    dataset, _ = load_dataset.build_dataset(args, True, trnsfrm=transform, training_mode = 'SSL')
     # Create an instance of custom dataset
-    data_list = load_data_list()
+    data_list = load_data_list(args.data_location)
     dataset = MyDataset(data_list, transform=transform)
     
     sampler = torch.utils.data.DistributedSampler(dataset, shuffle=True)
@@ -250,7 +241,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Epoch: [{}/{}]'.format(epoch, args.epochs)
 
-    for it, ((clean_crops, corrupted_crops, masks_crops)) in enumerate(metric_logger.log_every(data_loader, 5, header)):
+    for it, ((clean_crops, corrupted_crops, masks_crops)) in enumerate(metric_logger.log_every(data_loader, 50, header)):
 
         it = len(data_loader) * epoch + it  # global training iteration
         for i, param_group in enumerate(optimizer.param_groups):
@@ -280,7 +271,9 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
                 print_out = save_recon + '/epoch_' + str(epoch).zfill(5)  + '.jpg' 
                 imagesToPrint = torch.cat([clean_crops[0][0: min(15, bz)].cpu(),  corrupted_crops[0][0: min(15, bz)].cpu(),
                                        s_recons[0: min(15, bz)].cpu(), masks_crops[0][0: min(15, bz)].cpu()], dim=0)
-                #torchvision.utils.save_image(imagesToPrint, print_out, nrow=min(15, bz), normalize=True, range=(-1, 1))
+                # Only save the first slice
+                imagesToPrint = imagesToPrint[:, :, 0, :, :]
+                torchvision.utils.save_image(imagesToPrint, print_out, nrow=min(15, bz), normalize=True, range=(-1, 1))
             
             
             loss = c_loss + args.lmbda * r_loss

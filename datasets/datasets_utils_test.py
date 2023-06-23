@@ -72,7 +72,7 @@ class RandomVolumePatch(object):
     """
     Select a random volume patch from 3D tensor.
     """
-    def __init__(self, threshold=50, volume_shape=(21, 64, 64), required_percentage=0.7):
+    def __init__(self, threshold=0.1, volume_shape=(21, 64, 64), required_percentage=0.7):
         self.threshold = threshold
         self.volume_shape = volume_shape
         self.required_percentage = required_percentage

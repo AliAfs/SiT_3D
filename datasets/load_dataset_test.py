@@ -2,15 +2,15 @@ import os
 import numpy as np
 import torch
 
-def load_data_list():
-    folder_path = "../cohort_new/numpy arrays"
+def load_data_list(folder_path = "../cohort_new/numpy arrays compressed new"):
     file_list = os.listdir(folder_path)
 
     data_list = []
     for file_name in file_list:
-        if file_name.endswith('.npy'):
-            file_path = os.path.join(folder_path, file_name)  # Construct the full file path
-            array = np.load(file_path).astype(float)          # Load the array and convert its type to float
+        if file_name.endswith('.npz'):
+            file_path = os.path.join(folder_path, file_name)  
+            data = np.load(file_path)
+            array = data['arr_0'].astype(float)
             data_list.append(array)
 
     # Squeeze the arrays to remove the redundant dimension

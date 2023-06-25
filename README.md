@@ -23,7 +23,7 @@ Follow the steps below to successfully run the code in this repository:
 - Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
   > python main_test.py --batch_size 16 --epochs 100 --data-location './data'
 
-**Note:** There are more arguments that can be specified!
+  **Note:** There are more arguments that can be specified!
 
 # Reference
 

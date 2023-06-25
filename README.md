@@ -21,7 +21,7 @@ Follow the steps below to successfully run the code in this repository:
 - Convert the dice files into compressed numpy arrays using the [`network_final.mlab`](./network_final.mlab) script in MeVisLab. Make sure to specify the output directory in the `RunPythonScript` module of the network.
 
 - Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
-> python main_test.py --batch_size 16 --epochs 100 --data-location './data'
+  > python main_test.py --batch_size 16 --epochs 100 --data-location './data'
 
 **Note:** There are more arguments that can be specified!
 

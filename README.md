@@ -1,4 +1,9 @@
-# SiT: Self-supervised vIsion Transformer 
+# SiT (Self-supervised vIsion Transformer) for Volumetric Medical Data
+
+This project is an adaptation and training of the SiT model, originally developed by [Sara Atito, Muhammad Awais, and Josef Kittler](https://github.com/Sara-Ahmed/SiT). The original repository provides a foundation for this project, and we have made modifications to suit our specific needs.
+
+Link to the original repository: [Original Repository](https://github.com/Sara-Ahmed/SiT)
+</br>Link to the paper: [Paper](https://arxiv.org/abs/2104.03602)
 
 ![](imgs/SiT_.png)
 
@@ -41,9 +46,5 @@ Follow the steps below to successfully run the code in this repository:
 
 }
 ```
-
-
-# License
-This repository is released under the GNU General Public License.
 
 

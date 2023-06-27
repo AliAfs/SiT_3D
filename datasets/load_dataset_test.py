@@ -57,8 +57,8 @@ class NumpyArrayDataset(Dataset):
         data = array['arr_0'].astype(float)
         # Squeeze the arrays to remove the redundant dimension
         data = data.squeeze()
-        # Perform any necessary transformations or preprocessing on the data
         
+        # Perform any necessary transformations or preprocessing on the data
         if self.transform is not None:
             clean_crops, corrupted_crops, masks_crops = self.transform(data)
         return clean_crops, corrupted_crops, masks_crops

@@ -1,4 +1,9 @@
-# SiT: Self-supervised vIsion Transformer 
+# SiT (Self-supervised vIsion Transformer) for Volumetric Medical Data
+
+This project is an adaptation and training of the SiT model, originally developed by [Sara Atito, Muhammad Awais, and Josef Kittler](https://github.com/Sara-Ahmed/SiT). The original repository provides a foundation for this project, and we have made modifications to suit our specific needs.
+
+Link to the original repository: [Original Repository](https://github.com/Sara-Ahmed/SiT)
+</br>Link to the paper: [Paper](https://arxiv.org/abs/2104.03602)
 
 ![](imgs/SiT_.png)
 
@@ -16,12 +21,14 @@
 # Steps to Run the Code
 Follow the steps below to successfully run the code in this repository:
 
-1. Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
-2. Convert the dice files into compressed numpy arrays using the [`network_final.mlab`](./network_final.mlab) script in MeVisLab. Make sure to specify the output directory in the 'RunPythonScript' module of the network.
-3. Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
-> python main.py --batch_size 16 --epochs 100 --data-location './data'
+- Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
 
-**Note:** There are more arguments that can be specified!
+- Convert the dicom files into compressed numpy arrays using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Make sure to specify the output directory in the `RunPythonScript` module of the network.
+
+- Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
+  > python main_test.py --batch_size 16 --epochs 100 --data-location './data'
+
+  **Note:** There are more arguments that can be specified!
 
 # Reference
 
@@ -39,9 +46,5 @@ Follow the steps below to successfully run the code in this repository:
 
 }
 ```
-
-
-# License
-This repository is released under the GNU General Public License.
 
 

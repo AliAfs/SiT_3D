@@ -246,4 +246,3 @@ class DataAugmentationSiT(object):
         masks_crops.append(im_mask)
         
         return clean_crops, corrupted_crops, masks_crops
-

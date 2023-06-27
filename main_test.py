@@ -25,7 +25,7 @@ import torchvision
 
 from torch.utils.data import Dataset, DataLoader
 
-from datasets.load_dataset_test import load_data_list
+from datasets.load_dataset_test import NumpyArrayDataset
 
 import wandb
 
@@ -130,8 +130,7 @@ def train_SiT(args):
     transform = datasets_utils_test.DataAugmentationSiT(args)
     
     # Create an instance of custom dataset
-    data_list = load_data_list(args.data_location)
-    dataset = MyDataset(data_list, transform=transform)
+    dataset = NumpyArrayDataset(args.data_location, transform=transform)
     
     sampler = torch.utils.data.DistributedSampler(dataset, shuffle=True)
     data_loader = torch.utils.data.DataLoader(dataset,

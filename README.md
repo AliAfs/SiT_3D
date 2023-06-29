@@ -25,10 +25,26 @@ Follow the steps below to successfully run the code in this repository:
 
 - Convert the dicom files into compressed numpy arrays using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Make sure to specify the output directory in the `RunPythonScript` module of the network.
 
+   **Note:** To clean the file structure follow the steps in the next section.
+
+
 - Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
   > python main_test.py --batch_size 16 --epochs 100 --data-location './data'
 
   **Note:** There are more arguments that can be specified!
+
+
+# Clean File Structure
+Follow the steps below to organize the flat list of DICOM files into the PatientID-StudyInstanceUID-SeriesInstanceUID-SOPInstanceUID hierarchy.
+
+>git clone https://github.com/pieper/dicomsort.git
+
+>pip install pydicom
+
+>python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%StudyInstanceUID/%SeriesInstanceUID/%SOPInstanceUID.dcm
+
+
+**Note:** Replace `dicom_files_dir` with the directory of saved dicom files.
 
 # Reference
 

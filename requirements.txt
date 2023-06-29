@@ -5,4 +5,5 @@ imageio
 tabulate
 colorama
 wandb
-
+pydicom
+scipy

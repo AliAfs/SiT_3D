@@ -10,7 +10,7 @@ from scipy.ndimage import zoom
 def get_args_parser():
     parser = argparse.ArgumentParser('Dicom_to_Numpy', add_help=False)
 
-    parser.add_argument('--root_dir', default='/path/to/sorted_folder', type=str, help='Path to the sorted cohort dicom files')
+    parser.add_argument('--clean_folder_dir', default='/path/to/sorted_folder', type=str, help='Path to the sorted cohort dicom files')
     parser.add_argument('--voxel_size', default='2,2,2', type=str, help='Voxel size in the format i,j,k')
     parser.add_argument('--output_dir', default="/path/to/output", type=str, help='Path to save volumes as npz files.')
 
@@ -19,7 +19,7 @@ def get_args_parser():
 def dicom_to_npz(args):
     "Function to unify voxel sizes and save volume as npz files."
 
-    root_directory = args.root_dir
+    root_directory = args.clean_folder_dir
     output_directory = args.output_dir
     target_voxel_size = tuple(float(x) for x in args.voxel_size.split(','))
 

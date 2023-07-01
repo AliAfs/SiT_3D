@@ -53,8 +53,8 @@ class NumpyArrayDataset(Dataset):
         file_path = os.path.join(self.directory, file_name)
         
         array = np.load(file_path)
-
-        data = array['arr_0'].astype(float)
+        array_file0 = array.files[0]
+        data = array[array_file0].astype(float)
         # Squeeze the arrays to remove the redundant dimension
         data = data.squeeze()
         

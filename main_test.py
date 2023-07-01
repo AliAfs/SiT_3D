@@ -29,8 +29,7 @@ from datasets.load_dataset_test import NumpyArrayDataset
 
 import wandb
 
-# Log in to wandb with API key
-wandb.login(key='73342088afdc751ba26fe91911e9012f55fddbbf')
+# Log in to wandb with API key on the command line!
 
 class MyDataset(Dataset):
     def __init__(self, data_list, transform=None):
@@ -132,13 +131,14 @@ def train_SiT(args):
     # Create an instance of custom dataset
     dataset = NumpyArrayDataset(args.data_location, transform=transform)
     
+    print(f"Data loaded: there are {len(dataset.file_list)} images.")
+
     sampler = torch.utils.data.DistributedSampler(dataset, shuffle=True)
     data_loader = torch.utils.data.DataLoader(dataset,
         sampler=sampler, batch_size=args.batch_size,
         num_workers=args.num_workers, pin_memory=True, drop_last=True, 
         collate_fn=collate_batch(args.drop_replace, args.drop_align))
     
-    print(f"Data loaded: there are {len(dataset.data_list)} images.")
 
     # building networks 
     student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate)

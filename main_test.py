@@ -30,7 +30,7 @@ from datasets.load_dataset_test import NumpyArrayDataset
 import wandb
 
 # Log in to wandb with API key
-wandb.login(key='73342088afdc751ba26fe91911e9012f55fddbbf')
+#wandb.login(key='73342088afdc751ba26fe91911e9012f55fddbbf')
 
 class MyDataset(Dataset):
     def __init__(self, data_list, transform=None):
@@ -96,6 +96,10 @@ def get_args_parser():
     parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
     parser.add_argument("--dist_url", default="env://", type=str, help="set up distributed training")
     parser.add_argument("--local_rank", default=0, type=int)
+    
+    parser.add_argument('--save_recon', action='store_true')
+    parser.add_argument('--no_save_recon', dest='save_recon', action='store_false')
+    
     return parser
 
 
@@ -234,7 +238,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
     save_recon = os.path.join(args.output_dir, 'reconstruction_samples')
     Path(save_recon).mkdir(parents=True, exist_ok=True)
     bz = args.batch_size
-    plot_ = True
+    plot_ = args.save_recon
     
     
     metric_logger = utils.MetricLogger(delimiter="  ")

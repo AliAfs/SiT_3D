@@ -19,6 +19,8 @@ Link to the original repository: [Original Repository](https://github.com/Sara-A
 > pip install -r requirements.txt
 
 # Steps to Run the Code
+
+## Prepare the Data
 Follow the steps below to successfully run the code in this repository:
 
 - Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
@@ -31,10 +33,14 @@ Follow the steps below to successfully run the code in this repository:
     
     > python dicom_to_npz.py --root_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2
 
+## Prepare and conduct the actual training
 
-
-- Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data-location' argument.
-  > python main_test.py --batch_size 16 --epochs 100 --data-location './data'
+- Obtain and set `Weights and Biases` API key
+  - Create an account at wandb.ai
+  - You'll find your API key in the start page (a kind of default readme)
+  - insert it at 
+- Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data_location' argument.
+  > python main_test.py --batch_size 16 --epochs 100 --data_location './data'
 
   **Note:** There are more arguments that can be specified!
 

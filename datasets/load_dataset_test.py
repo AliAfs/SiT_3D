@@ -11,7 +11,7 @@ def load_data_list(folder_path = "../cohort_new/numpy arrays compressed new"):
         if file_name.endswith('.npz'):
             file_path = os.path.join(folder_path, file_name)  
             data = np.load(file_path)
-            array = data['arr_0'].astype(float)
+            array = data['volume'].astype(float)
             data_list.append(array)
 
     # Squeeze the arrays to remove the redundant dimension
@@ -54,7 +54,7 @@ class NumpyArrayDataset(Dataset):
         
         array = np.load(file_path)
 
-        data = array['arr_0'].astype(float)
+        data = array['volume'].astype(float)
         # Squeeze the arrays to remove the redundant dimension
         data = data.squeeze()
         

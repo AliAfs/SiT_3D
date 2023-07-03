@@ -53,8 +53,8 @@ def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, default=0.5, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, default=0, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_perc', type=float, default=0.3, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
     
     parser.add_argument('--drop_align', type=int, default=(7, 16, 16), help='Align drop with patches; Set to patch size to align corruption with patches')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
@@ -105,7 +105,7 @@ def get_args_parser():
 
 # replace from other images
 class collate_batch(object): 
-    def __init__(self, drop_replace=0., drop_align=1):
+    def __init__(self, drop_replace=0.3, drop_align=(7, 16, 16)):
         self.drop_replace = drop_replace
         self.drop_align = drop_align
         
@@ -113,9 +113,9 @@ class collate_batch(object):
         batch = torch.utils.data.dataloader.default_collate(batch)
         
         if self.drop_replace > 0:
-            batch[0][1][0], batch[0][2][0] = datasets_utils_test.GMML_replace_list(batch[0][0][0], batch[0][1][0], batch[0][2][0],
+            batch[1][0], batch[2][0] = datasets_utils_test.GMML_replace_list(batch[0][0], batch[1][0], batch[2][0],
                                                                             max_replace=self.drop_replace, align=self.drop_align)
-            batch[0][1][1], batch[0][2][1] = datasets_utils_test.GMML_replace_list(batch[0][0][1], batch[0][1][1], batch[0][2][1],
+            batch[1][1], batch[2][1] = datasets_utils_test.GMML_replace_list(batch[0][1], batch[1][1], batch[2][1],
                                                                             max_replace=self.drop_replace, align=self.drop_align)
         
         return batch

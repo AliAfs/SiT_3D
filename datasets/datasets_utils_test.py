@@ -93,7 +93,7 @@ class RandomVolumePatch(object):
 
             # Extract the random volume from the tensor
             volume = tensor[start_indices[0]:end_indices[0], start_indices[1]:end_indices[1], start_indices[2]:end_indices[2]]
-            
+            return volume.unsqueeze(0) # FIXME for the moment return volume unconditionally.
             # Calculate the percentage of values above the threshold
             above_threshold = torch.sum(volume > self.threshold).item()
 

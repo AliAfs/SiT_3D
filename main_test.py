@@ -118,7 +118,7 @@ class collate_batch(object):
     
     
 def train_SiT(args):
-    wandb.init(project='SiT')
+    wandb.init(project='SiT-Collaboration')
 
     utils.init_distributed_mode(args)
     utils.fix_random_seeds(args.seed)
@@ -134,11 +134,14 @@ def train_SiT(args):
     print(f"Data loaded: there are {len(dataset.file_list)} images.")
 
     sampler = torch.utils.data.DistributedSampler(dataset, shuffle=True)
-    data_loader = torch.utils.data.DataLoader(dataset,
-        sampler=sampler, batch_size=args.batch_size,
-        num_workers=args.num_workers, pin_memory=True, drop_last=True, 
+    data_loader = torch.utils.data.DataLoader(
+        dataset,
+        sampler=sampler, 
+        batch_size=args.batch_size,
+        num_workers=args.num_workers, 
+        pin_memory=True, 
+        drop_last=True, 
         collate_fn=collate_batch(args.drop_replace, args.drop_align))
-    
 
     # building networks 
     student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate)
@@ -240,13 +243,15 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Epoch: [{}/{}]'.format(epoch, args.epochs)
 
-    for it, ((clean_crops, corrupted_crops, masks_crops)) in enumerate(metric_logger.log_every(data_loader, 50, header)):
+    for it, ((clean_crops, corrupted_crops, masks_crops)) in enumerate(metric_logger.log_every(data_loader, 5, header)):
 
         it = len(data_loader) * epoch + it  # global training iteration
         for i, param_group in enumerate(optimizer.param_groups):
             param_group["lr"] = lr_schedule[it]
             if i == 0:  
                 param_group["weight_decay"] = wd_schedule[it]
+
+        wandb.log({'lr': lr_schedule[it], 'wd': wd_schedule[it]})
 
         # move images to gpu
         clean_crops = [im.cuda(non_blocking=True) for im in clean_crops]

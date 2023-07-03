@@ -33,7 +33,7 @@ class NumpyArrayDataset(Dataset):
     def __getitem__(self, idx):
         # Load and preprocess the data at the given index        
         array = np.load(os.path.join(self.directory, self.file_list[idx]))
-        data = array['volume'].astype(float)
+        data = array[array.files[0]].astype(float)
         
         # Perform any necessary transformations or preprocessing on the data
         if self.transform is not None:

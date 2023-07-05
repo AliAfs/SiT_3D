@@ -1,4 +1,7 @@
 __pycache__/
-datasets/
 wandb/
 checkpoints/
+test_general.ipynb
+test_scripts.ipynb
+edit_functions.ipynb
+resize_volumes.ipynb

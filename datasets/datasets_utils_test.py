@@ -102,7 +102,7 @@ class RandomVolumePatch(object):
             if percentage_above_threshold >= self.required_percentage:
                 return volume.unsqueeze(0)
 
-def GMML_replace_list(samples, corrup_prev, masks_prev, drop_type='noise', max_replace=0.35, align=(7, 16, 16)):
+def GMML_replace_list(samples, corrup_prev, masks_prev, drop_type='noise', max_replace=0.35, align=None):
         
     rep_drop = 1 if drop_type == '' else ( 1 / ( len(drop_type.split('-')) + 1 ) )
     
@@ -118,7 +118,7 @@ def GMML_replace_list(samples, corrup_prev, masks_prev, drop_type='noise', max_r
 
     return samples_aug, masks
 
-def GMML_drop_rand_patches_3d(X, X_rep=None, drop_type='noise', max_replace=0.7, align=(7, 16, 16), max_block_sz=0.4):
+def GMML_drop_rand_patches_3d(X, X_rep=None, drop_type='noise', max_replace=0.7, align=None, max_block_sz=0.4):
     import torch
     import numpy as np
     from random import randint
@@ -138,26 +138,39 @@ def GMML_drop_rand_patches_3d(X, X_rep=None, drop_type='noise', max_replace=0.7,
     mx_blk_height = int(H * max_block_sz)
     mx_blk_width = int(W * max_block_sz)
 
-    align_d, align_h, align_w = align
-
-    #align = max(1, align)
+    if align is not None:
+        align_d, align_h, align_w = align
+        
+        align_d = max(1, align_d)
+        align_h = max(1, align_d)
+        align_w = max(1, align_d)
 
     mask = torch.zeros_like(X)
     drop_t = np.random.choice(drop_type.split('-'))
 
     while mask[0].sum() < n_drop_pix:
-
+        
         ####### get a random block to replace
-        rnd_e = (randint(0, D - align_d) // align_d) * align_d
-        rnd_r = (randint(0, H - align_h) // align_h) * align_h
-        rnd_c = (randint(0, W - align_w) // align_w) * align_w
+        if align is None:
+            rnd_e = randint(0, D - 1)
+            rnd_r = randint(0, H - 1)
+            rnd_c = randint(0, W - 1)
 
-        rnd_d = min(randint(align_d, mx_blk_depth), D - rnd_e)
-        rnd_d = round(rnd_d / align_d) * align_d
-        rnd_h = min(randint(align_h, mx_blk_height), H - rnd_r)
-        rnd_h = round(rnd_h / align_h) * align_h
-        rnd_w = min(randint(align_w, mx_blk_width), W - rnd_c)
-        rnd_w = round(rnd_w / align_w) * align_w
+            rnd_d = min(randint(1, mx_blk_depth), D - rnd_e)
+            rnd_h = min(randint(1, mx_blk_height), H - rnd_r)
+            rnd_w = min(randint(1, mx_blk_width), W - rnd_c)
+
+        else:
+            rnd_e = (randint(0, D - align_d) // align_d) * align_d
+            rnd_r = (randint(0, H - align_h) // align_h) * align_h
+            rnd_c = (randint(0, W - align_w) // align_w) * align_w
+
+            rnd_d = min(randint(align_d, mx_blk_depth), D - rnd_e)
+            rnd_d = round(rnd_d / align_d) * align_d
+            rnd_h = min(randint(align_h, mx_blk_height), H - rnd_r)
+            rnd_h = round(rnd_h / align_h) * align_h
+            rnd_w = min(randint(align_w, mx_blk_width), W - rnd_c)
+            rnd_w = round(rnd_w / align_w) * align_w
 
         if X_rep is not None:
             X[:, rnd_e:rnd_e + rnd_d, rnd_r:rnd_r + rnd_h, rnd_c:rnd_c + rnd_w] = X_rep[:,
@@ -173,9 +186,14 @@ def GMML_drop_rand_patches_3d(X, X_rep=None, drop_type='noise', max_replace=0.7,
                     (C, rnd_d, rnd_h, rnd_w), dtype=X.dtype, device=X.device)
             else:
                 ####### get a random block to replace from
-                rnd_e2 = (randint(0, D - rnd_d) // align_d) * align_d
-                rnd_r2 = (randint(0, H - rnd_h) // align_h) * align_h
-                rnd_c2 = (randint(0, W - rnd_w) // align_w) * align_w
+                if align is None:
+                    rnd_e2 = randint(0, D - rnd_d) 
+                    rnd_r2 = randint(0, H - rnd_h)
+                    rnd_c2 = randint(0, W - rnd_w)
+                else:
+                    rnd_e2 = (randint(0, D - rnd_d) // align_d) * align_d
+                    rnd_r2 = (randint(0, H - rnd_h) // align_h) * align_h
+                    rnd_c2 = (randint(0, W - rnd_w) // align_w) * align_w
 
                 X[:, rnd_e:rnd_e + rnd_d, rnd_r:rnd_r + rnd_h, rnd_c:rnd_c + rnd_w] = X[:,
                                                                                       rnd_e2:rnd_e2 + rnd_d,

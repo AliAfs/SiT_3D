@@ -145,6 +145,10 @@ class VisionTransformer(nn.Module):
                  drop_path_rate=0., norm_layer=nn.LayerNorm, **kwargs):
         super().__init__()
         self.num_features = self.embed_dim = embed_dim
+        self.depth = depth
+        self.num_heads = num_heads
+        self.volume_size = volume_size
+        self.patch_size = patch_size
 
         self.patch_embed = PatchEmbed_3D(
             volume_size=volume_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim)
@@ -242,6 +246,16 @@ def vit_small(patch_size=(7, 16, 16), **kwargs):
 def vit_base(patch_size=(7, 16, 16), **kwargs):
     model = VisionTransformer(
         patch_size=patch_size, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4,
+        qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+def vit_custom(patch_size=(7,16,16), **kwargs):
+    input_embed_dim = kwargs['input_embed_dim']
+    input_depth = kwargs['input_depth']
+    input_num_heads = kwargs['input_num_heads']
+
+    model = VisionTransformer(
+        patch_size=patch_size, embed_dim=input_embed_dim, depth=input_depth, num_heads=input_num_heads, mlp_ratio=4,
         qkv_bias=True, norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
     return model
 

@@ -31,32 +31,23 @@ import wandb
 
 # Log in to wandb with API key on the command line!
 
-class MyDataset(Dataset):
-    def __init__(self, data_list, transform=None):
-        self.data_list = data_list
-        self.transform = transform
-
-    def __len__(self):
-        return len(self.data_list)
-
-    def __getitem__(self, index):
-        # Load and preprocess the data at the given index
-        data = self.data_list[index]
-        
-        # Perform any necessary transformations or preprocessing on the data
-        if self.transform is not None:
-            clean_crops, corrupted_crops, masks_crops = self.transform(data)
-        return clean_crops, corrupted_crops, masks_crops
-    
-
 def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
+
+    def tuple_arg(arg):
+        if arg is None:
+            return None
+        try:
+            # Try to parse the argument as a tuple
+            return tuple(map(int, arg.split(',')))
+        except ValueError:
+            raise argparse.ArgumentTypeError("Invalid tuple format.")
 
     # Reconstruction Parameters
     parser.add_argument('--drop_perc', type=float, default=0.3, help='Drop X percentage of the input image')
     parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
     
-    parser.add_argument('--drop_align', type=int, default=(7, 16, 16), help='Align drop with patches; Set to patch size to align corruption with patches')
+    parser.add_argument('--drop_align', type=tuple_arg, default=None, help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
     
     parser.add_argument('--lmbda', type=int, default=1, help='Scaling factor for the reconstruction loss')
@@ -68,7 +59,7 @@ def get_args_parser():
     
 
     # Model parameters
-    parser.add_argument('--model', default='vit_tiny', type=str, choices=['vit_tiny', 'vit_small', 'vit_base'], help="Name of architecture")
+    parser.add_argument('--model', default='vit_tiny', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
     parser.add_argument('--drop_path_rate', type=float, default=0.1, help="stochastic depth rate")
     
 
@@ -105,7 +96,7 @@ def get_args_parser():
 
 # replace from other images
 class collate_batch(object): 
-    def __init__(self, drop_replace=0.3, drop_align=(7, 16, 16)):
+    def __init__(self, drop_replace=0.3, drop_align=None):
         self.drop_replace = drop_replace
         self.drop_align = drop_align
         
@@ -122,8 +113,6 @@ class collate_batch(object):
     
     
 def train_SiT(args):
-    wandb.init(project='SiT-Collaboration')
-
     utils.init_distributed_mode(args)
     utils.fix_random_seeds(args.seed)
     print("git:\n  {}\n".format(utils.get_sha()))
@@ -147,10 +136,28 @@ def train_SiT(args):
         drop_last=True, 
         collate_fn=collate_batch(args.drop_replace, args.drop_align))
 
-    # building networks 
-    student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate)
-    teacher = vits.__dict__[args.model]()
+    # building networks
+    if args.model=='vit_custom':
+        try:
+            input_embed_dim = int(input("embed_dim: "))
+            input_depth = int(input("depth: "))
+            input_num_heads = int(input("num_heads: "))
+            if input_embed_dim%input_num_heads != 0:
+                raise ValueError("Invalid input. embed_dim must be dividable by num_heads!")
+        except ValueError:
+            raise ValueError("Invalid input. Please enter integers.")
+        student = vits.__dict__[args.model](input_embed_dim=input_embed_dim, input_depth=input_depth, input_num_heads=input_num_heads,
+                                            drop_path_rate=args.drop_path_rate)
+        teacher = vits.__dict__[args.model](input_embed_dim=input_embed_dim, input_depth=input_depth, input_num_heads=input_num_heads)
+    else:
+        student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate)
+        teacher = vits.__dict__[args.model]()
+    
     embed_dim = student.embed_dim
+    depth = student.depth
+    num_heads = student.num_heads
+    volume_size = student.volume_size
+    patch_size = student.patch_size
 
     student = FullPipline(student, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim))
     teacher = FullPipline(teacher, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim))
@@ -206,6 +213,21 @@ def train_SiT(args):
 
     start_time = time.time()
     print("Training ..")
+    wandb.init(project='SiT-Collaboration',
+                # track hyperparameters and run metadata
+                config={
+                "model": args.model,
+                "learning_rate": args.lr,
+                "depth": depth,
+                "num_heads": num_heads,
+                "out_dim": args.out_dim,
+                "volume_size": volume_size,
+                "patch_size": patch_size,
+                "epochs": args.epochs,
+                "batch_size": args.batch_size,
+                "drop_perc": args.drop_perc,
+                "drop_replace": args.drop_replace,
+                })
     for epoch in range(start_epoch, args.epochs):
         data_loader.sampler.set_epoch(epoch)
         

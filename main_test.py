@@ -34,20 +34,11 @@ import wandb
 def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
-    def tuple_arg(arg):
-        if arg is None:
-            return None
-        try:
-            # Try to parse the argument as a tuple
-            return tuple(map(int, arg.split(',')))
-        except ValueError:
-            raise argparse.ArgumentTypeError("Invalid tuple format.")
-
     # Reconstruction Parameters
     parser.add_argument('--drop_perc', type=float, default=0.3, help='Drop X percentage of the input image')
     parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
     
-    parser.add_argument('--drop_align', type=tuple_arg, default=None, help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
+    parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
     
     parser.add_argument('--lmbda', type=int, default=1, help='Scaling factor for the reconstruction loss')
@@ -96,7 +87,7 @@ def get_args_parser():
 
 # replace from other images
 class collate_batch(object): 
-    def __init__(self, drop_replace=0.3, drop_align=None):
+    def __init__(self, drop_replace=0.3, drop_align=(1,1,1)):
         self.drop_replace = drop_replace
         self.drop_align = drop_align
         
@@ -415,5 +406,10 @@ class FullPipline(nn.Module):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('SiT', parents=[get_args_parser()])
     args = parser.parse_args()
+    try:
+        # Try to parse the argument as a tuple
+        args.drop_align = tuple(map(int, args.drop_align.split(',')))
+    except ValueError:
+        raise argparse.ArgumentTypeError("Invalid tuple format for --drop_align. Valid format 1,1,1")
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     train_SiT(args)

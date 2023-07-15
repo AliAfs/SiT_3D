@@ -72,9 +72,9 @@ class RandomVolumePatch(object):
     """
     Select a random volume patch from 3D tensor.
     """
-    def __init__(self, threshold=0.1, volume_shape=(21, 64, 64), required_percentage=0.7):
+    def __init__(self, threshold=0.1, volume_size=(21, 64, 64), required_percentage=0.7):
         self.threshold = threshold
-        self.volume_shape = volume_shape
+        self.volume_shape = volume_size
         self.required_percentage = required_percentage
 
     def __call__(self, tensor):
@@ -202,7 +202,7 @@ class DataAugmentationSiT(object):
             torch.from_numpy,
             transforms.ConvertImageDtype(torch.float32),
             #PadAndCrop(output_size=(147, 224, 224)),
-            RandomVolumePatch(),
+            RandomVolumePatch(volume_size=args.volume_size),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomRotation(degrees=10)
         ])
@@ -212,7 +212,7 @@ class DataAugmentationSiT(object):
             torch.from_numpy,
             transforms.ConvertImageDtype(torch.float32),
             #PadAndCrop(output_size=(147, 224, 224)),
-            RandomVolumePatch(),
+            RandomVolumePatch(volume_size=args.volume_size),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomRotation(degrees=10)
         ])

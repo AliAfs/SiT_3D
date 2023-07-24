@@ -183,25 +183,30 @@ class VisionTransformer(nn.Module):
             nn.init.constant_(m.weight, 1.0)
 
     def interpolate_pos_encoding(self, x, d, w, h):
-        npatch = x.shape[1] - 1
-        N = self.pos_embed.shape[1] - 1
-        if npatch == N and w == h:
-            return self.pos_embed
-        class_pos_embed = self.pos_embed[:, 0]
-        patch_pos_embed = self.pos_embed[:, 1:]
-        dim = x.shape[-1]
-        d0 = d // self.patch_embed.patch_size[0] # New
-        w0 = w // self.patch_embed.patch_size[1]
-        h0 = h // self.patch_embed.patch_size[2]
-        d0, w0, h0 = d0 + 0.1, w0 + 0.1, h0 + 0.1
-        patch_pos_embed = nn.functional.interpolate(
-            patch_pos_embed.reshape(1, N//(w0*h0), N//(d0*h0), N//(d0*w0), dim).permute(0, 4, 1, 2, 3),
-            scale_factor=(d0 / (N/(w0*h0)), w0 / (N/(d0*h0)), h0 / (N/(d0*w0))),
-            mode='bicubic',
-        )
-        assert int(d0) == patch_pos_embed.shape[-3] and int(w0) == patch_pos_embed.shape[-2] and int(h0) == patch_pos_embed.shape[-1]
-        patch_pos_embed = patch_pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
-        return torch.cat((class_pos_embed.unsqueeze(0), patch_pos_embed), dim=1)
+        
+        return self.pos_embed
+        #npatch = x.shape[1] - 1
+        #N = self.pos_embed.shape[1] - 1
+        #if npatch == N and w == h:
+        #    return self.pos_embed
+        #class_pos_embed = self.pos_embed[:, 0]
+        #patch_pos_embed = self.pos_embed[:, 1:]
+
+        #dim = x.shape[-1]
+        #d0 = d // self.patch_embed.patch_size[0] # New
+        #w0 = w // self.patch_embed.patch_size[1]
+        #h0 = h // self.patch_embed.patch_size[2]
+        
+        #d0, w0, h0 = d0 + 0.1, w0 + 0.1, h0 + 0.1
+
+        #patch_pos_embed = nn.functional.interpolate(
+        #    patch_pos_embed.reshape(1, int( N//(w0*h0) ), int( N//(d0*h0) ), int( N//(d0*w0) ), dim).permute(0, 4, 1, 2, 3),
+        #    scale_factor=(d0 / (N/(w0*h0)), w0 / (N/(d0*h0)), h0 / (N/(d0*w0))),
+        #    mode='bicubic',
+        #)
+        #assert int(d0) == patch_pos_embed.shape[-3] and int(w0) == patch_pos_embed.shape[-2] and int(h0) == patch_pos_embed.shape[-1]
+        #patch_pos_embed = patch_pos_embed.permute(0, 2, 3, 1).view(1, -1, dim)
+        #return torch.cat((class_pos_embed.unsqueeze(0), patch_pos_embed), dim=1)
 
     def prepare_tokens(self, x):
         B, nc, d, w, h = x.shape

@@ -139,4 +139,7 @@ if __name__ == '__main__':
     except ValueError:
       raise argparse.ArgumentTypeError("Invalid tuple format. Valid format 1,1,1")
     
+    for i, j in zip(args.volume_size, args.patch_size):
+        assert i % j == 0, "volume_size must be divisible by patch_size"
+        
     train_SiT(args)

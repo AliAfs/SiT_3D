@@ -317,8 +317,15 @@ class RECHead_3D(nn.Module):
         self.mlp = nn.Sequential(*layers)
         self.apply(self._init_weights)
         
-        self.convTrans = nn.ConvTranspose3d(in_dim, in_chans, kernel_size=patch_size, 
-                                                stride=patch_size)
+        #self.convTrans = nn.ConvTranspose3d(in_dim, in_chans, kernel_size=patch_size, 
+        #                                        stride=patch_size)
+        self.convTrans = nn.Sequential(
+            nn.ConvTranspose3d(in_dim, 64, kernel_size=patch_size, stride=patch_size),
+            nn.ReLU(),
+            nn.ConvTranspose3d(64, 32, kernel_size=3, stride=1, padding=1),
+            nn.ReLU(),
+            nn.ConvTranspose3d(32, in_chans, kernel_size=3, stride=1, padding=1)
+        )
 
 
     def _init_weights(self, m):

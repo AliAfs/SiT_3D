@@ -333,7 +333,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
 
         # logging
         torch.cuda.synchronize()
-        metric_logger.update(c_loss=c_loss.item())
+        #metric_logger.update(c_loss=c_loss.item())
         metric_logger.update(r_loss=r_loss.item())
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])

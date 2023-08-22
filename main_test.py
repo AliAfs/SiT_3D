@@ -50,7 +50,7 @@ def get_args_parser():
     
 
     # Model parameters
-    parser.add_argument('--model', default='vit_tiny', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
+    parser.add_argument('--model', default='vit_base', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
     parser.add_argument('--drop_path_rate', type=float, default=0.1, help="stochastic depth rate")
     
 

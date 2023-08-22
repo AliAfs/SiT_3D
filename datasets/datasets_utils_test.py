@@ -102,6 +102,19 @@ class RandomVolumePatch(object):
             if percentage_above_threshold >= self.required_percentage:
                 return volume.unsqueeze(0)
 
+class GrayValueMirror:
+    def __init__(self, probability=0.5):
+        self.probability = probability
+
+    def __call__(self, tensor):
+        if random.random() < self.probability:
+            min_value = torch.min(tensor)
+            max_value = torch.max(tensor)
+            mirrored_tensor = max_value - tensor + min_value
+            return mirrored_tensor
+        else:
+            return tensor
+
 def GMML_replace_list(samples, corrup_prev, masks_prev, drop_type='noise', max_replace=0.35, align=(1,1,1)):
         
     rep_drop = 1 if drop_type == '' else ( 1 / ( len(drop_type.split('-')) + 1 ) )
@@ -213,6 +226,7 @@ class DataAugmentationSiT(object):
             transforms.ConvertImageDtype(torch.float32),
             #PadAndCrop(output_size=(147, 224, 224)),
             RandomVolumePatch(volume_size=args.volume_size),
+            GrayValueMirror(probability=0.5)
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomRotation(degrees=10)
         ])

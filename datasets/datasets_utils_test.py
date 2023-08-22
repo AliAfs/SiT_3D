@@ -113,7 +113,7 @@ class GrayValueMirror:
             mirrored_tensor = max_value - tensor + min_value
             return mirrored_tensor
         else:
-            return tensor
+            return tensor.unsqueeze(0)
 
 def GMML_replace_list(samples, corrup_prev, masks_prev, drop_type='noise', max_replace=0.35, align=(1,1,1)):
         

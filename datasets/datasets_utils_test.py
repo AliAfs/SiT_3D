@@ -107,11 +107,12 @@ class GrayValueMirror:
         self.probability = probability
 
     def __call__(self, tensor):
+        tensor = tensor.squeeze(0)
         if random.random() < self.probability:
             min_value = torch.min(tensor)
             max_value = torch.max(tensor)
             mirrored_tensor = max_value - tensor + min_value
-            return mirrored_tensor
+            return mirrored_tensor.unsqueeze(0)
         else:
             return tensor.unsqueeze(0)
 

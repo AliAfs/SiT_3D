@@ -70,6 +70,7 @@ def get_args_parser():
 
     # Dataset
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
+    parser.add_argument('--volume_size', type=str, default="21,64,64", help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
 
     parser.add_argument('--output_dir', default="checkpoints/vit_small/trial", type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
@@ -411,5 +412,11 @@ if __name__ == '__main__':
         args.drop_align = tuple(map(int, args.drop_align.split(',')))
     except ValueError:
         raise argparse.ArgumentTypeError("Invalid tuple format for --drop_align. Valid format 1,1,1")
+    try:
+        # Try to parse the argument as a tuple
+        args.volume_size = tuple(map(int, args.drop_align.split(',')))
+    except ValueError:
+        raise argparse.ArgumentTypeError("Invalid tuple format for --volume_size. Valid format 21,64,64")
+    
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     train_SiT(args)

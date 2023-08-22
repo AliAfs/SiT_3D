@@ -226,7 +226,7 @@ class DataAugmentationSiT(object):
             transforms.ConvertImageDtype(torch.float32),
             #PadAndCrop(output_size=(147, 224, 224)),
             RandomVolumePatch(volume_size=args.volume_size),
-            GrayValueMirror(probability=0.5)
+            GrayValueMirror(probability=0.5),
             transforms.RandomHorizontalFlip(p=0.5),
             transforms.RandomRotation(degrees=10)
         ])

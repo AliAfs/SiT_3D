@@ -35,8 +35,8 @@ def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, default=0.5, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, default=0.5, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_perc', type=float, default=0.6, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
     
     parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')

@@ -35,8 +35,8 @@ def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, default=0.3, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_perc', type=float, default=0.5, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_replace', type=float, default=0.5, help='Drop X percentage of the input image')
     
     parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
@@ -72,7 +72,7 @@ def get_args_parser():
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
     parser.add_argument('--volume_size', type=str, default="21,64,64", help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
 
-    parser.add_argument('--output_dir', default="checkpoints/vit_small/trial", type=str, help='Path to save logs and checkpoints.')
+    parser.add_argument('--output_dir', default="checkpoints/vit_base/trial", type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
     parser.add_argument('--seed', default=0, type=int, help='Random seed.')
     parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
@@ -414,7 +414,7 @@ if __name__ == '__main__':
         raise argparse.ArgumentTypeError("Invalid tuple format for --drop_align. Valid format 1,1,1")
     try:
         # Try to parse the argument as a tuple
-        args.volume_size = tuple(map(int, args.drop_align.split(',')))
+        args.volume_size = tuple(map(int, args.volume_size.split(',')))
     except ValueError:
         raise argparse.ArgumentTypeError("Invalid tuple format for --volume_size. Valid format 21,64,64")
     

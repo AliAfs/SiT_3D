@@ -293,8 +293,11 @@ class CLSHead(nn.Module):
 
 
 class RECHead_3D(nn.Module):
-    def __init__(self, in_dim, in_chans=1, patch_size=(7, 16, 16)):
+    def __init__(self, in_dim, in_chans=1, patch_size=(7, 16, 16), volume_size=(21, 64, 64)):
         super().__init__()
+        self.patch_size = patch_size
+        self.volume_size = volume_size
+        self.in_chans = in_chans
 
         layers = [nn.Linear(in_dim, in_dim)]
         layers.append(nn.GELU())
@@ -306,8 +309,17 @@ class RECHead_3D(nn.Module):
         self.mlp = nn.Sequential(*layers)
         self.apply(self._init_weights)
         
-        self.convTrans = nn.ConvTranspose3d(in_dim, in_chans, kernel_size=patch_size, 
-                                                stride=patch_size)
+        #self.convTrans = nn.ConvTranspose3d(in_dim, in_chans, kernel_size=patch_size, 
+        #                                        stride=patch_size)
+        self.convTrans = nn.Sequential(
+            nn.ConvTranspose3d(in_dim, 256, kernel_size=(3,3,3), stride=(2,2,2), padding=(1,1,1)),
+            nn.ReLU(),
+            nn.ConvTranspose3d(256, 128, kernel_size=(3,3,3), stride=(2,3,3), padding=(0,0,0)),
+            nn.ReLU(),
+            nn.ConvTranspose3d(128, 128, kernel_size=(3,4,4), stride=(2,3,3), padding=(1,0,0)),
+            nn.ReLU(),
+            nn.ConvTranspose3d(128, 1, kernel_size=(1,1,1))
+        )
 
 
     def _init_weights(self, m):
@@ -321,8 +333,8 @@ class RECHead_3D(nn.Module):
         
         x_rec = x.transpose(1, 2)
         #out_sz = tuple( (  int(math.sqrt(x_rec.size()[2]))  ,   int(math.sqrt(x_rec.size()[2])) ) )
-        out_sz = tuple( (3, 4, 4) ) # hard coded for now
+        #out_sz = tuple( (3, 4, 4) ) # hard coded for now
+        out_sz = tuple( (self.volume_size[0]//self.patch_size[0], self.volume_size[1]//self.patch_size[1], self.volume_size[2]//self.patch_size[2]) )
         x_rec = self.convTrans(x_rec.unflatten(2, out_sz))
-                
-                
+
         return x_rec

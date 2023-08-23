@@ -41,7 +41,7 @@ def get_args_parser():
     parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
     
-    parser.add_argument('--lmbda', type=int, default=1, help='Scaling factor for the reconstruction loss')
+    parser.add_argument('--lmbda', type=int, default=3, help='Scaling factor for the reconstruction loss')
     
     # SimCLR Parameters
     parser.add_argument('--out_dim', default=192, type=int, help="Dimensionality of output features")

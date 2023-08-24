@@ -44,7 +44,7 @@ def get_args_parser():
     parser.add_argument('--lmbda', type=int, default=3, help='Scaling factor for the reconstruction loss')
     
     # SimCLR Parameters
-    parser.add_argument('--out_dim', default=192, type=int, help="Dimensionality of output features")
+    parser.add_argument('--out_dim', default=256, type=int, help="Dimensionality of output features")
     parser.add_argument('--simclr_temp', default=0.2, type=float, help="tempreture for SimCLR.")
     parser.add_argument('--momentum_teacher', default=0.996, type=float, help="EMA parameter for teacher update.")
     

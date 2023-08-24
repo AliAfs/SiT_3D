@@ -7,3 +7,7 @@ colorama
 wandb
 pydicom
 scipy
+# PyTorch with CUDA 11.0
+torch==1.7.0+cu110
+torchvision==0.8.0+cu110
+torchaudio==0.7.0

@@ -17,7 +17,7 @@ Data Source: [NCI Imaging Data Commons](https://aacrjournals.org/cancerres/artic
 
 
 
-![](imgs/SiT_.png)
+![](imgs/architecture_new.png)
 
 
 # Requirements

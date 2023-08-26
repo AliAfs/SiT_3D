@@ -31,40 +31,43 @@ def dicom_to_npz(args):
 
             # Check if the folder contains more than one DICOM file
             if len(dicom_files) > 1:
-                # Sort the DICOM files based on slice position or number
-                dicom_files.sort(key=lambda x: pydicom.dcmread(os.path.join(subdirectory_path, x)).SliceLocation)
+                try:
+                    # Sort the DICOM files based on slice position or number
+                    dicom_files.sort(key=lambda x: pydicom.dcmread(os.path.join(subdirectory_path, x)).SliceLocation)
 
-                slices = []
-                for file_name in dicom_files:
-                    dicom_path = os.path.join(subdirectory_path, file_name)
-                    ds = pydicom.dcmread(dicom_path)
-                    slices.append(ds.pixel_array)
+                    slices = []
+                    for file_name in dicom_files:
+                        dicom_path = os.path.join(subdirectory_path, file_name)
+                        ds = pydicom.dcmread(dicom_path)
+                        slices.append(ds.pixel_array)
 
-                # Convert slices into a 3D NumPy array
-                volume = np.stack(slices)
+                    # Convert slices into a 3D NumPy array
+                    volume = np.stack(slices)
 
-                # Get the current voxel spacing
-                current_voxel_size = (float(ds.SliceThickness), float(ds.PixelSpacing[0]), float(ds.PixelSpacing[1]))
+                    # Get the current voxel spacing
+                    current_voxel_size = (float(ds.SliceThickness), float(ds.PixelSpacing[0]), float(ds.PixelSpacing[1]))
 
-                # Calculate the zoom factors for resampling
-                zoom_factors = (current_voxel_size[0] / target_voxel_size[0],
-                                current_voxel_size[1] / target_voxel_size[1],
-                                current_voxel_size[2] / target_voxel_size[2])
+                    # Calculate the zoom factors for resampling
+                    zoom_factors = (current_voxel_size[0] / target_voxel_size[0],
+                                    current_voxel_size[1] / target_voxel_size[1],
+                                    current_voxel_size[2] / target_voxel_size[2])
 
-                # Resample the volume to the target voxel size
-                volume_resampled = zoom(volume, zoom_factors, order=1)
-                
+                    # Resample the volume to the target voxel size
+                    volume_resampled = zoom(volume, zoom_factors, order=1)
+                    
 
-                # Normalize the volume to [0, 1]
-                min_value = np.min(volume_resampled)
-                max_value = np.max(volume_resampled)
-                volume_normalized = (volume_resampled - min_value) / (max_value - min_value)
-                
-                # Save the volume as compressed numpy array npz
-                last_folder_name = os.path.basename(subdirectory_path)
-                save_path = os.path.join(output_directory, f'{last_folder_name}.npz')
-                np.savez_compressed(save_path, volume=volume_normalized)
-                print(f'Processed Volume: {last_folder_name}')
+                    # Normalize the volume to [0, 1]
+                    min_value = np.min(volume_resampled)
+                    max_value = np.max(volume_resampled)
+                    volume_normalized = (volume_resampled - min_value) / (max_value - min_value)
+                    
+                    # Save the volume as compressed numpy array npz
+                    last_folder_name = os.path.basename(subdirectory_path)
+                    save_path = os.path.join(output_directory, f'{last_folder_name}.npz')
+                    np.savez_compressed(save_path, volume=volume_normalized)
+                    print(f'Processed Volume: {last_folder_name}')
+                except:
+                    pass
                 
         # Move to the next subdirectory
         for subdirectory in dirs:

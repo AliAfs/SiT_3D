@@ -5,3 +5,12 @@ test_general.ipynb
 test_scripts.ipynb
 edit_functions.ipynb
 resize_volumes.ipynb
+inference_test.ipynb
+vision_transformer_3d_test_summary.py
+vectors_CT.tsv
+vectors_MRI.tsv
+vectors_ALL.tsv
+vectors_ALL_cls_tocken.tsv
+labels_ALL_cls_tocken.tsv
+test_general.ipynb
+model_summary.ipynb

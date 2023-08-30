@@ -14,3 +14,4 @@ vectors_ALL_cls_tocken.tsv
 labels_ALL_cls_tocken.tsv
 test_general.ipynb
 model_summary.ipynb
+feature_vectors.ipynb

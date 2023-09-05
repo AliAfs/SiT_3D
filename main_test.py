@@ -16,14 +16,12 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 
-from datasets import load_dataset, datasets_utils_test
+from datasets import datasets_utils_test
 
 import utils
 import vision_transformer_3d_test as vits
 from vision_transformer_3d_test import CLSHead, RECHead_3D
 import torchvision
-
-from torch.utils.data import Dataset, DataLoader
 
 from datasets.load_dataset_test import NumpyArrayDataset
 

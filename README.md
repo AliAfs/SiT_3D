@@ -51,7 +51,7 @@ Follow the steps below to successfully run the code in this repository:
   - Create an account at wandb.ai
   - You'll find your API key in the start page (a kind of default readme)
   - Log into W&B through the command line (using wandb login --relogin), and provide the API key.
-- Run the [`main_test.py`](./main_test.py) file and make sure to specify the 'data_location' argument.
+- Run the [`main_3D.py`](./main_test.py) file and make sure to specify the 'data_location' argument.
   > python main_test.py --batch_size 16 --epochs 100 --data_location './data'
 
   **Note:** There are more arguments that can be specified!

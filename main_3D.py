@@ -154,16 +154,16 @@ def train_SiT(args):
     student, teacher = student.cuda(), teacher.cuda()
     
     # synchronize batch norms
-    #student = nn.SyncBatchNorm.convert_sync_batchnorm(student)
-    #teacher = nn.SyncBatchNorm.convert_sync_batchnorm(teacher)
+    student = nn.SyncBatchNorm.convert_sync_batchnorm(student)
+    teacher = nn.SyncBatchNorm.convert_sync_batchnorm(teacher)
 
     # we need DDP wrapper to have synchro batch norms working...
-    #teacher = nn.parallel.DistributedDataParallel(teacher, device_ids=[args.gpu])
-    teacher = nn.DataParallel(teacher)
+    teacher = nn.parallel.DistributedDataParallel(teacher, device_ids=[args.gpu])
+    #teacher = nn.DataParallel(teacher)
     teacher_without_ddp = teacher.module
 
-    #student = nn.parallel.DistributedDataParallel(student, device_ids=[args.gpu])
-    student = nn.DataParallel(student)
+    student = nn.parallel.DistributedDataParallel(student, device_ids=[args.gpu])
+    #student = nn.DataParallel(student)
     teacher_without_ddp.load_state_dict(student.module.state_dict())
     #teacher_without_ddp.load_state_dict(student.state_dict())
 

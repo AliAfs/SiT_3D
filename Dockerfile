@@ -1,5 +1,5 @@
 # Use a base image compatible with the target system (x86_64 for CUDA)
-FROM nvidia/cuda:11.0-base
+FROM nvidia/cuda:11.8.0-runtime-ubuntu20.04
 
 # Set up the environment
 RUN apt-get update && \
@@ -17,4 +17,4 @@ WORKDIR /app
 # Set environment variables if needed
 
 # Run your script or application
-CMD ["python3", "main_test.py", "--save_recon", "--data_location", "path/to/data", "--batch_size", "?"]
+CMD ["python3", "main_3D.py", "--save_recon", "--data_location", "path/to/data", "--batch_size", "?"]

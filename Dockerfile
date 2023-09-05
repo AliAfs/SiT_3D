@@ -1,4 +1,4 @@
-# Use a base image compatible with the target system (x86_64 for CUDA)
+# Use a runtime image compatible with the target system
 FROM nvidia/cuda:11.8.0-runtime-ubuntu20.04
 
 # Set up the environment

@@ -16,6 +16,7 @@ test_general.ipynb
 model_summary.ipynb
 feature_vectors.ipynb
 reconstruction.py
+reconstruction.ipynb
 resize_volumes.ipynb
 test_general.ipynb
 test_scripts.ipynb

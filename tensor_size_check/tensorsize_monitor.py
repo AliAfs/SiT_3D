@@ -16,7 +16,7 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 
-from datasets import load_dataset, datasets_utils_test
+from datasets import datasets_utils_3D, load_dataset
 
 import utils
 import vision_transformer_3d as vits
@@ -25,7 +25,7 @@ import torchvision
 
 from torch.utils.data import Dataset, DataLoader
 
-from datasets.load_dataset_test import NumpyArrayDataset
+from datasets.load_dataset_3D import NumpyArrayDataset
 
 def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
@@ -70,7 +70,7 @@ def get_args_parser():
 
 def train_SiT(args):
     # prepare dataset
-    transform = datasets_utils_test.DataAugmentationSiT(args)
+    transform = datasets_utils_3D.DataAugmentationSiT(args)
 
     # Create an instance of custom dataset
     dataset = NumpyArrayDataset(args.data_location, transform=transform)

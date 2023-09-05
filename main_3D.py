@@ -16,14 +16,12 @@ import torch.nn as nn
 import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 
-from datasets import datasets_utils_3D, load_dataset
+from datasets import datasets_utils_3D
 
 import utils
 import vision_transformer_3D as vits
 from vision_transformer_3D import CLSHead, RECHead_3D
 import torchvision
-
-from torch.utils.data import Dataset, DataLoader
 
 from datasets.load_dataset_3D import NumpyArrayDataset
 
@@ -35,22 +33,22 @@ def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, default=0.5, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, default=0.5, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_perc', type=float, default=0.6, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
     
     parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
     
-    parser.add_argument('--lmbda', type=int, default=1, help='Scaling factor for the reconstruction loss')
+    parser.add_argument('--lmbda', type=int, default=3, help='Scaling factor for the reconstruction loss')
     
     # SimCLR Parameters
-    parser.add_argument('--out_dim', default=192, type=int, help="Dimensionality of output features")
+    parser.add_argument('--out_dim', default=256, type=int, help="Dimensionality of output features")
     parser.add_argument('--simclr_temp', default=0.2, type=float, help="tempreture for SimCLR.")
     parser.add_argument('--momentum_teacher', default=0.996, type=float, help="EMA parameter for teacher update.")
     
 
     # Model parameters
-    parser.add_argument('--model', default='vit_tiny', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
+    parser.add_argument('--model', default='vit_base', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
     parser.add_argument('--drop_path_rate', type=float, default=0.1, help="stochastic depth rate")
     
 
@@ -70,8 +68,9 @@ def get_args_parser():
 
     # Dataset
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
+    parser.add_argument('--volume_size', type=str, default="21,64,64", help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
 
-    parser.add_argument('--output_dir', default="checkpoints/vit_small/trial", type=str, help='Path to save logs and checkpoints.')
+    parser.add_argument('--output_dir', default="checkpoints/vit_base/trial", type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
     parser.add_argument('--seed', default=0, type=int, help='Random seed.')
     parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
@@ -279,7 +278,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
             t_cls, _ = teacher(torch.cat(clean_crops[0:]), recons=False)             
             s_cls, s_recons = student(torch.cat(corrupted_crops[0:]))
             
-            #c_loss = simclr_loss(s_cls, t_cls, epoch)
+            c_loss = simclr_loss(s_cls, t_cls, epoch)
             
             #-------------------------------------------------
             recloss = F.l1_loss(s_recons, torch.cat(clean_crops[0:]), reduction='none')
@@ -297,12 +296,10 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
                 torchvision.utils.save_image(imagesToPrint, print_out, nrow=min(15, bz), normalize=True, range=(-1, 1))
             
             
-            #loss = c_loss + args.lmbda * r_loss
-            loss = r_loss
+            loss = c_loss + args.lmbda * r_loss
             
-            #wandb.log({'loss': loss, 'c_loss': c_loss, 'r_loss': r_loss})
-            wandb.log({'r_loss': loss})
-            
+            wandb.log({'loss': loss, 'c_loss': c_loss, 'r_loss': r_loss})
+
         if not math.isfinite(loss.item()):
             print("Loss is {}, stopping training".format(loss.item()), force=True)
             sys.exit(1)
@@ -333,7 +330,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
 
         # logging
         torch.cuda.synchronize()
-        #metric_logger.update(c_loss=c_loss.item())
+        metric_logger.update(c_loss=c_loss.item())
         metric_logger.update(r_loss=r_loss.item())
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
@@ -413,5 +410,11 @@ if __name__ == '__main__':
         args.drop_align = tuple(map(int, args.drop_align.split(',')))
     except ValueError:
         raise argparse.ArgumentTypeError("Invalid tuple format for --drop_align. Valid format 1,1,1")
+    try:
+        # Try to parse the argument as a tuple
+        args.volume_size = tuple(map(int, args.volume_size.split(',')))
+    except ValueError:
+        raise argparse.ArgumentTypeError("Invalid tuple format for --volume_size. Valid format 21,64,64")
+    
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     train_SiT(args)

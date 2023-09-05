@@ -1,8 +1,8 @@
-import vision_transformer_3d_test as vits
-from vision_transformer_3d_test import CLSHead, RECHead_3D
+import vision_transformer_3D as vits
+from vision_transformer_3D import CLSHead, RECHead_3D
 
-from datasets import load_dataset, datasets_utils_test
-from datasets.load_dataset_test import NumpyArrayDataset
+from datasets import datasets_utils_3D, load_dataset
+from datasets.load_dataset_3D import NumpyArrayDataset
 import utils
 
 import torch.nn as nn
@@ -52,9 +52,9 @@ class collate_batch(object):
         batch = torch.utils.data.dataloader.default_collate(batch)
         
         if self.drop_replace > 0:
-            batch[1][0], batch[2][0] = datasets_utils_test.GMML_replace_list(batch[0][0], batch[1][0], batch[2][0],
+            batch[1][0], batch[2][0] = datasets_utils_3D.GMML_replace_list(batch[0][0], batch[1][0], batch[2][0],
                                                                             max_replace=self.drop_replace, align=self.drop_align)
-            batch[1][1], batch[2][1] = datasets_utils_test.GMML_replace_list(batch[0][1], batch[1][1], batch[2][1],
+            batch[1][1], batch[2][1] = datasets_utils_3D.GMML_replace_list(batch[0][1], batch[1][1], batch[2][1],
                                                                             max_replace=self.drop_replace, align=self.drop_align)
         
         return batch
@@ -93,7 +93,7 @@ def visualize_center_slice(args):
     utils.fix_random_seeds()
 
     # prepare dataset
-    transform = datasets_utils_test.DataAugmentationSiT(args)
+    transform = datasets_utils_3D.DataAugmentationSiT(args)
 
     # Create an instance of custom dataset
     dataset = NumpyArrayDataset(args.data_location, transform=transform)

@@ -74,7 +74,7 @@ class RandomVolumePatch(object):
     """
     def __init__(self, threshold=0.1, volume_size=(21, 64, 64), required_percentage=0.7):
         self.threshold = threshold
-        self.volume_shape = volume_size
+        self.volume_size = volume_size
         self.required_percentage = required_percentage
 
     def __call__(self, tensor):
@@ -83,13 +83,13 @@ class RandomVolumePatch(object):
         if len(tensor_shape) != 3:
             raise ValueError("The input tensor must be a 3D tensor.")
 
-        if any(dim < size for dim, size in zip(tensor_shape, self.volume_shape)):
+        if any(dim < size for dim, size in zip(tensor_shape, self.volume_size)):
             raise ValueError("The volume size cannot be larger than the tensor dimensions.")
 
         while True:
             # Generate random indices for the volume
-            start_indices = [np.random.randint(dim - size + 1) for dim, size in zip(tensor_shape, self.volume_shape)]
-            end_indices = [start + size for start, size in zip(start_indices, self.volume_shape)]
+            start_indices = [np.random.randint(dim - size + 1) for dim, size in zip(tensor_shape, self.volume_size)]
+            end_indices = [start + size for start, size in zip(start_indices, self.volume_size)]
 
             # Extract the random volume from the tensor
             volume = tensor[start_indices[0]:end_indices[0], start_indices[1]:end_indices[1], start_indices[2]:end_indices[2]]

@@ -1,0 +1,43 @@
+# config.yaml
+
+# Reconstruction Parameters
+drop_perc: 0.6
+drop_replace: 0.3
+rand_block_perc: 0.05
+drop_align: "1,1,1"
+drop_type: "zeros"
+lmbda: 3
+lmbda2: 3
+
+# SimCLR Parameters
+out_dim: 256
+simclr_temp: 0.2
+momentum_teacher: 0.996
+
+# Model parameters
+model: "vit_base"
+drop_path_rate: 0.1
+patch_size: "7,16,16"
+
+# Training/Optimization parameters
+use_fp16: true
+weight_decay: 0.04
+weight_decay_end: 0.1
+clip_grad: 3.0
+batch_size: 16
+epochs: 100
+lr: 0.0005
+warmup_epochs: 10
+min_lr: 1e-6
+
+# Dataset
+data_location: "/path/to/dataset"
+volume_size: "21,64,64"
+output_dir: "checkpoints/vit_base/trial"
+saveckp_freq: 20
+seed: 0
+num_workers: 10
+dist_url: "env://"
+local_rank: 0
+save_recon: true
+

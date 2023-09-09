@@ -20,5 +20,4 @@ reconstruction.ipynb
 resize_volumes.ipynb
 test_general.ipynb
 test_scripts.ipynb
-config.yaml
 yaml_test.py

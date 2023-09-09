@@ -69,6 +69,7 @@ def get_args_parser():
     # Dataset
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
     parser.add_argument('--volume_size', type=str, default="21,64,64", help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
+    parser.add_argument('--patch_size', type=str, default="7,16,16", help='Patch size to divide input sub-volume into; Possible format 7,16,16')
 
     parser.add_argument('--output_dir', default="checkpoints/vit_base/trial", type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
@@ -137,20 +138,19 @@ def train_SiT(args):
         except ValueError:
             raise ValueError("Invalid input. Please enter integers.")
         student = vits.__dict__[args.model](input_embed_dim=input_embed_dim, input_depth=input_depth, input_num_heads=input_num_heads,
-                                            drop_path_rate=args.drop_path_rate)
-        teacher = vits.__dict__[args.model](input_embed_dim=input_embed_dim, input_depth=input_depth, input_num_heads=input_num_heads)
+                                            drop_path_rate=args.drop_path_rate, volume_size=args.volume_size, patch_size=args.patch_size)
+        teacher = vits.__dict__[args.model](input_embed_dim=input_embed_dim, input_depth=input_depth, input_num_heads=input_num_heads,
+                                            volume_size=args.volume_size, patch_size=args.patch_size)
     else:
-        student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate)
-        teacher = vits.__dict__[args.model]()
+        student = vits.__dict__[args.model](drop_path_rate=args.drop_path_rate, volume_size=args.volume_size, patch_size=args.patch_size)
+        teacher = vits.__dict__[args.model](volume_size=args.volume_size, patch_size=args.patch_size)
     
     embed_dim = student.embed_dim
     depth = student.depth
     num_heads = student.num_heads
-    volume_size = student.volume_size
-    patch_size = student.patch_size
 
-    student = FullPipline(student, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim))
-    teacher = FullPipline(teacher, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim))
+    student = FullPipline(student, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size))
+    teacher = FullPipline(teacher, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size))
     student, teacher = student.cuda(), teacher.cuda()
     
     # synchronize batch norms
@@ -211,8 +211,8 @@ def train_SiT(args):
                 "depth": depth,
                 "num_heads": num_heads,
                 "out_dim": args.out_dim,
-                "volume_size": volume_size,
-                "patch_size": patch_size,
+                "volume_size": args.volume_size,
+                "patch_size": args.patch_size,
                 "epochs": args.epochs,
                 "batch_size": args.batch_size,
                 "drop_perc": args.drop_perc,
@@ -415,6 +415,11 @@ if __name__ == '__main__':
         args.volume_size = tuple(map(int, args.volume_size.split(',')))
     except ValueError:
         raise argparse.ArgumentTypeError("Invalid tuple format for --volume_size. Valid format 21,64,64")
+    try:
+        # Try to parse the argument as a tuple
+        args.patch_size = tuple(map(int, args.patch_size.split(',')))
+    except ValueError:
+        raise argparse.ArgumentTypeError("Invalid tuple format for --patch_size. Valid format 7,16,16")
     
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     train_SiT(args)

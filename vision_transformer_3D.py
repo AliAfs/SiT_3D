@@ -293,7 +293,7 @@ class CLSHead(nn.Module):
 
 
 class RECHead_3D(nn.Module):
-    def __init__(self, in_dim, in_chans=1, patch_size=(7, 16, 16), volume_size=(21, 64, 64)):
+    def __init__(self, in_dim, in_chans=1, volume_size=(21, 64, 64), patch_size=(7, 16, 16)):
         super().__init__()
         self.patch_size = patch_size
         self.volume_size = volume_size

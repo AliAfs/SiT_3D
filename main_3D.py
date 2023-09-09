@@ -33,13 +33,15 @@ def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, default=0.6, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_perc', type=float, default=0.6, help='Drop X percentage of the input volume')
+    parser.add_argument('--drop_replace', type=float, default=0.3, help='Drop X percentage of the input volume')
+    parser.add_argument('--rand_block_perc', type=float, default=0.1, help='Proportion of the random block to calculate the additional reconstruction loss')
     
     parser.add_argument('--drop_align', type=str, default="1,1,1", help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default='zeros', help='Drop Type.')
     
     parser.add_argument('--lmbda', type=int, default=3, help='Scaling factor for the reconstruction loss')
+    parser.add_argument('--lmbda2', type=int, default=3, help='Scaling factor for the additional reconstruction loss')
     
     # SimCLR Parameters
     parser.add_argument('--out_dim', default=256, type=int, help="Dimensionality of output features")
@@ -259,7 +261,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
     metric_logger = utils.MetricLogger(delimiter="  ")
     header = 'Epoch: [{}/{}]'.format(epoch, args.epochs)
 
-    for it, ((clean_crops, corrupted_crops, masks_crops)) in enumerate(metric_logger.log_every(data_loader, 5, header)):
+    for it, ((clean_crops, corrupted_crops, masks_crops, rand_block_crops)) in enumerate(metric_logger.log_every(data_loader, 5, header)):
 
         it = len(data_loader) * epoch + it  # global training iteration
         for i, param_group in enumerate(optimizer.param_groups):
@@ -283,7 +285,8 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
             #-------------------------------------------------
             recloss = F.l1_loss(s_recons, torch.cat(clean_crops[0:]), reduction='none')
             
-            r_loss = recloss[torch.cat(masks_crops[0:2])==1].mean()  
+            r_loss = recloss[torch.cat(masks_crops[0:2])==1].mean()
+            r_loss_new = recloss[torch.cat(rand_block_crops[0:2])==1].mean()  
 
             if plot_==True and utils.is_main_process():
                 plot_ = False
@@ -296,9 +299,9 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
                 torchvision.utils.save_image(imagesToPrint, print_out, nrow=min(15, bz), normalize=True, range=(-1, 1))
             
             
-            loss = c_loss + args.lmbda * r_loss
+            loss = c_loss + args.lmbda * r_loss + args.lmbda2 * r_loss_new
             
-            wandb.log({'loss': loss, 'c_loss': c_loss, 'r_loss': r_loss})
+            wandb.log({'loss': loss, 'c_loss': c_loss, 'r_loss': r_loss, 'r_loss_new': r_loss_new})
 
         if not math.isfinite(loss.item()):
             print("Loss is {}, stopping training".format(loss.item()), force=True)
@@ -332,6 +335,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
         torch.cuda.synchronize()
         metric_logger.update(c_loss=c_loss.item())
         metric_logger.update(r_loss=r_loss.item())
+        metric_logger.update(r_loss_new=r_loss_new.item())
         metric_logger.update(loss=loss.item())
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
         metric_logger.update(wd=optimizer.param_groups[0]["weight_decay"])

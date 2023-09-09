@@ -202,6 +202,34 @@ def GMML_drop_rand_patches_3d(X, X_rep=None, drop_type='noise', max_replace=0.7,
 
     return X, mask
 
+def random_selected_block(X, rand_block_perc=0.1):
+    
+    torch.manual_seed(0)
+    np.random.seed(0)
+
+    # Calculate the size of the selected block based on the proportion
+    C, D, H, W = X.size()
+    blk_depth = int(D * rand_block_perc)
+    blk_height = int(H * rand_block_perc)
+    blk_width = int(W * rand_block_perc)
+
+    # Randomly select the starting position for the selected block
+    start_depth = torch.randint(0, D - blk_depth + 1, (1,))
+    start_height = torch.randint(0, H - blk_height + 1, (1,))
+    start_width = torch.randint(0, W - blk_width + 1, (1,))
+
+    # Calculate the ending position
+    end_depth = start_depth + blk_depth
+    end_height = start_height + blk_height
+    end_width = start_width + blk_width
+
+    block = torch.zeros_like(X)
+
+    # Set the selected block to 1
+    block[:, start_depth:end_depth, start_height:end_height, start_width:end_width] = 1
+
+    return block
+
 class DataAugmentationSiT(object):
     def __init__(self, args):
         
@@ -209,6 +237,7 @@ class DataAugmentationSiT(object):
         self.drop_perc = args.drop_perc
         self.drop_type = args.drop_type
         self.drop_align = args.drop_align
+        self.rand_block_perc = args.rand_block_perc
         
         
         # first global crop
@@ -237,19 +266,24 @@ class DataAugmentationSiT(object):
         clean_crops = []
         corrupted_crops = []
         masks_crops = []
+        rand_block_crops = []
 
         ## augmented 1
         im_orig = self.global_transfo1(image)
         
         im_corrupted = im_orig.detach().clone()
         im_mask = torch.zeros_like(im_corrupted)
+        im_block = torch.zeros_like(im_corrupted)
         if self.drop_perc > 0:
             im_corrupted, im_mask = GMML_drop_rand_patches_3d(im_corrupted, 
                                                            max_replace=self.drop_perc, drop_type=self.drop_type, align=self.drop_align)
+        im_block = random_selected_block(im_corrupted, rand_block_perc = self.rand_block_perc)
+
         clean_crops.append(im_orig)
         corrupted_crops.append(im_corrupted)
         masks_crops.append(im_mask)
-        
+        rand_block_crops.append(im_block)
+
         ## augmented 2
         im_orig = self.global_transfo2(image)
         
@@ -258,8 +292,11 @@ class DataAugmentationSiT(object):
         if self.drop_perc > 0:
             im_corrupted, im_mask = GMML_drop_rand_patches_3d(im_corrupted, 
                                                            max_replace=self.drop_perc, drop_type=self.drop_type, align=self.drop_align)
+        im_block = random_selected_block(im_corrupted, rand_block_perc = self.rand_block_perc)
+        
         clean_crops.append(im_orig)
         corrupted_crops.append(im_corrupted)
         masks_crops.append(im_mask)
-        
-        return clean_crops, corrupted_crops, masks_crops
+        rand_block_crops.append(im_block)
+
+        return clean_crops, corrupted_crops, masks_crops, rand_block_crops

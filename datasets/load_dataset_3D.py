@@ -37,5 +37,5 @@ class NumpyArrayDataset(Dataset):
         
         # Perform any necessary transformations or preprocessing on the data
         if self.transform is not None:
-            clean_crops, corrupted_crops, masks_crops = self.transform(data.squeeze())
-        return clean_crops, corrupted_crops, masks_crops
+            clean_crops, corrupted_crops, masks_crops, rand_block_crops = self.transform(data.squeeze())
+        return clean_crops, corrupted_crops, masks_crops, rand_block_crops

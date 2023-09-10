@@ -28,11 +28,14 @@ from datasets.load_dataset_3D import NumpyArrayDataset
 
 import wandb
 
-# Log in to wandb with API key on the command line!
 
 # Read config yaml file
 with open('config.yaml') as file:
     config = yaml.safe_load(file)
+
+# Log in to wandb with API key
+# Alternatively you can log in to wandb with API key on the command line!
+wandb.login(key=f'{config["API_key"]}')
 
 def get_args_parser():
     parser = argparse.ArgumentParser('SiT', add_help=False)
@@ -43,8 +46,10 @@ def get_args_parser():
     
     parser.add_argument('--drop_align', type=str, default=config['drop_align'], help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
     parser.add_argument('--drop_type', type=str, default=config['drop_type'], help='Drop Type.')
+    parser.add_argument('--rand_block_perc', type=float, default=config['rand_block_perc'], help='Proportion of the random block to calculate the additional reconstruction loss')
     
     parser.add_argument('--lmbda', type=int, default=config['lmbda'], help='Scaling factor for the reconstruction loss')
+    parser.add_argument('--lmbda2', type=int, default=config['lmbda2'], help='Scaling factor for the additional reconstruction loss')
     
     # SimCLR Parameters
     parser.add_argument('--out_dim', default=config['out_dim'], type=int, help="Dimensionality of output features")
@@ -55,6 +60,7 @@ def get_args_parser():
     # Model parameters
     parser.add_argument('--model', default=config['model'], type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
     parser.add_argument('--drop_path_rate', type=float, default=config['drop_path_rate'], help="stochastic depth rate")
+    parser.add_argument('--patch_size', type=str, default=config['patch_size'], help='Patch size to divide input sub-volume into; Possible format 7,16,16')
     
 
     # Training/Optimization parameters
@@ -206,7 +212,7 @@ def train_SiT(args):
 
     start_time = time.time()
     print("Training ..")
-    wandb.init(project='SiT-Collaboration',
+    wandb.init(project=f'{config["project_name"]}',
                 # track hyperparameters and run metadata
                 config={
                 "model": args.model,
@@ -220,6 +226,7 @@ def train_SiT(args):
                 "batch_size": args.batch_size,
                 "drop_perc": args.drop_perc,
                 "drop_replace": args.drop_replace,
+                "rand_block_perc": args.rand_block_perc,
                 })
     for epoch in range(start_epoch, args.epochs):
         data_loader.sampler.set_epoch(epoch)

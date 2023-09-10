@@ -1,4 +1,6 @@
-# config.yaml
+# wandb Account
+project_name: "wandb_project_name"
+API_key: "API_key"
 
 # Reconstruction Parameters
 drop_perc: 0.6

@@ -91,7 +91,9 @@ class RandomVolumePatch(object):
             m = nn.ConstantPad3d(padding, 0)
             tensor = m(tensor)
             #raise ValueError("The volume size cannot be larger than the tensor dimensions.")
-
+            # Update tensor_shape
+            tensor_shape = tensor.shape
+            
         while True:
             # Generate random indices for the volume
             start_indices = [np.random.randint(dim - size + 1) for dim, size in zip(tensor_shape, self.volume_size)]

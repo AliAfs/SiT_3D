@@ -283,6 +283,7 @@ def train_one_epoch(student, teacher, teacher_without_ddp, simclr_loss, data_loa
         clean_crops = [im.cuda(non_blocking=True) for im in clean_crops]
         corrupted_crops = [im.cuda(non_blocking=True) for im in corrupted_crops]
         masks_crops = [im.cuda(non_blocking=True) for im in masks_crops]
+        rand_block_crops = [im.cuda(non_blocking=True) for im in rand_block_crops]
         
         with torch.cuda.amp.autocast(fp16_scaler is not None):
             t_cls, _ = teacher(torch.cat(clean_crops[0:]), recons=False)             

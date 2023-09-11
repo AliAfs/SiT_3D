@@ -9,6 +9,7 @@ from PIL import ImageFilter, ImageOps
 from torchvision import transforms as tf
 
 from torchvision import transforms
+import torch.nn as nn
 
 
 def buildLabelIndex(labels):
@@ -84,7 +85,12 @@ class RandomVolumePatch(object):
             raise ValueError("The input tensor must be a 3D tensor.")
 
         if any(dim < size for dim, size in zip(tensor_shape, self.volume_size)):
-            raise ValueError("The volume size cannot be larger than the tensor dimensions.")
+            # Calculate the padding required to fit the volume size
+            pad_dims = [max(0, size - dim) for size, dim in zip(self.volume_size, tensor_shape)]
+            padding = tuple((pad_dim+1) // 2 for pad_dim in reversed(pad_dims) for _ in range(2))
+            m = nn.ConstantPad3d(padding, 0)
+            tensor = m(tensor)
+            #raise ValueError("The volume size cannot be larger than the tensor dimensions.")
 
         while True:
             # Generate random indices for the volume

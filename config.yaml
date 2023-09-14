@@ -22,7 +22,7 @@ drop_path_rate: 0.1
 patch_size: "7,16,16"
 
 # Training/Optimization parameters
-use_fp16: true
+use_fp16: True
 weight_decay: 0.04
 weight_decay_end: 0.1
 clip_grad: 3.0
@@ -41,5 +41,5 @@ seed: 0
 num_workers: 10
 dist_url: "env://"
 local_rank: 0
-save_recon: true
+save_recon: True
 

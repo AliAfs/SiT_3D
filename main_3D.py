@@ -220,7 +220,7 @@ def train_SiT(args):
 
     start_time = time.time()
     print("Training ..")
-    wandb.init(project=f'{config["project_name"]}',
+    wandb.init(project=f'{args.project_name}',
                 # track hyperparameters and run metadata
                 config={
                 "model": args.model,

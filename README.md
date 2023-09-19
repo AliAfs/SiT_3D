@@ -33,6 +33,10 @@ pip install -r requirements.txt
 Follow the steps below to successfully run the code in this repository:
 
 - Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
+- In short:
+  - `docker pull peakcom/s5cmd`
+  - `docker run -rm -v /where/to/download/to/locally:/aws -v ~/.aws:/root/.aws -v $(pwd):/app /s5cmd run /app/cohort_1076_20230617_24853_gcs.s5cmd`
+- Of course, replace `/where/to/download/to/locally` with an existing path on your machine.
 
 - Clean the file structure of the downloaded data. We want it to be in the folder structure `PatientID-StudyInstanceUID-SeriesInstanceUID-SOPInstanceUID`
 ```

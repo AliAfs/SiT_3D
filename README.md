@@ -45,8 +45,8 @@ python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%Study
 - Convert the DICOM files into compressed NumPy arrays. There are two possible methods you can use:
   - **MeVisLab:** Using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Make sure to specify the output directory in the `RunPythonScript` module of the network.
   - **Python:** Run the [dicom_to_npz.py](./dicom_to_npz.py) file and make sure to specify the `clean_folder_dir`(directory containing the DICOM files in a clean structure.), and `output_dir` (directory where the output files will be saved). Optionally, you can specify the voxel size. The default value is 2,2,2.
-    
-    > python dicom_to_npz.py --clean_folder_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2
+
+`python dicom_to_npz.py --clean_folder_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2`
 
 ## Prepare and conduct the actual training
 

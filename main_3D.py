@@ -33,71 +33,80 @@ def get_args():
     parser = argparse.ArgumentParser('SiT', add_help=False)
 
     # Config file
-    parser.add_argument('--config', type=str, default='config.yaml', help='Path to the configuration YAML file.')
+    parser.add_argument('--config', type=str, help='Path to the configuration YAML file.')
 
+    # Parse the command line arguments to check if a config file is provided
+    args, remaining_argv = parser.parse_known_args()
+    config_defaults = {}
+
+    # Load values from the config YAML file if it is provided
+    if args.config:
+        with open(args.config, "r") as config_file:
+            config = yaml.safe_load(config_file)
+            config_defaults.update(config)
+
+    # Add the rest of the command line arguments
+    parser = argparse.ArgumentParser('SiT', add_help=False)
+    
     # wandb Account
-    parser.add_argument('--project_name', type=str, help='Name of the wandb project.')
-    parser.add_argument('--API_key', type=str, help='API key for wandb.')
+    parser.add_argument('--project_name', default='project_name', type=str, help='Name of the wandb project.')
+    parser.add_argument('--API_key', default='API_key', type=str, help='API key for wandb.')
 
     # Reconstruction Parameters
-    parser.add_argument('--drop_perc', type=float, help='Drop X percentage of the input image')
-    parser.add_argument('--drop_replace', type=float, help='Drop X percentage of the input image')
-    parser.add_argument('--rand_block_perc', type=float, help='Proportion of the random block to calculate the additional reconstruction loss')
+    parser.add_argument('--drop_perc', default=0.6, type=float, help='Drop X percentage of the input image')
+    parser.add_argument('--drop_replace', default=0.3, type=float, help='Drop X percentage of the input image')
+    parser.add_argument('--rand_block_perc', default=0.05, type=float, help='Proportion of the random block to calculate the additional reconstruction loss')
 
-    parser.add_argument('--drop_align', type=str, help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
-    parser.add_argument('--drop_type', type=str, help='Drop Type.')
+    parser.add_argument('--drop_align', default='1,1,1', type=str, help='Align drop with patches; Set to patch size to align corruption with patches; Possible format 7,16,16')
+    parser.add_argument('--drop_type', default='zeros', type=str, help='Drop Type.')
     
-    parser.add_argument('--lmbda', type=int, help='Scaling factor for the reconstruction loss')
-    parser.add_argument('--lmbda2', type=int, help='Scaling factor for the additional reconstruction loss')
+    parser.add_argument('--lmbda', default=3, type=int, help='Scaling factor for the reconstruction loss')
+    parser.add_argument('--lmbda2', default=3,type=int, help='Scaling factor for the additional reconstruction loss')
     
     # SimCLR Parameters
-    parser.add_argument('--out_dim', type=int, help="Dimensionality of output features")
-    parser.add_argument('--simclr_temp', type=float, help="temperature for SimCLR.")
-    parser.add_argument('--momentum_teacher', type=float, help="EMA parameter for teacher update.")
+    parser.add_argument('--out_dim', default=256,type=int, help="Dimensionality of output features")
+    parser.add_argument('--simclr_temp', default=0.2,type=float, help="temperature for SimCLR.")
+    parser.add_argument('--momentum_teacher', default=0.996, type=float, help="EMA parameter for teacher update.")
     
 
     # Model parameters
-    parser.add_argument('--model', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
-    parser.add_argument('--drop_path_rate', type=float,  help="stochastic depth rate")
-    parser.add_argument('--patch_size', type=str, help='Patch size to divide input sub-volume into; Possible format 7,16,16')
+    parser.add_argument('--model', default='vit_base', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
+    parser.add_argument('--drop_path_rate', default=0.1, type=float,  help="stochastic depth rate")
+    parser.add_argument('--patch_size', default='7,16,16', type=str, help='Patch size to divide input sub-volume into; Possible format 7,16,16')
     
 
     # Training/Optimization parameters
-    parser.add_argument('--use_fp16', type=utils.bool_flag)
-    parser.add_argument('--weight_decay', type=float)
-    parser.add_argument('--weight_decay_end', type=float)
-    parser.add_argument('--clip_grad', type=float)
+    parser.add_argument('--use_fp16', default=True, type=utils.bool_flag)
+    parser.add_argument('--weight_decay', default=0.04, type=float)
+    parser.add_argument('--weight_decay_end', default=0.1, type=float)
+    parser.add_argument('--clip_grad', default=3.0,type=float)
     
-    parser.add_argument('--batch_size', type=int)
-    parser.add_argument('--epochs', type=int, help='Number of epochs of training.')
+    parser.add_argument('--batch_size', default=16, type=int)
+    parser.add_argument('--epochs', default=100, type=int, help='Number of epochs of training.')
 
-    parser.add_argument("--lr", type=float, help="Learning rate.")
-    parser.add_argument("--warmup_epochs",  type=int, help="Number of epochs for the linear learning-rate warm up.")
-    parser.add_argument('--min_lr', type=float,  help="Target LR at the end of optimization.")
+    parser.add_argument("--lr", default=0.0005, type=float, help="Learning rate.")
+    parser.add_argument("--warmup_epochs",  default=10, type=int, help="Number of epochs for the linear learning-rate warm up.")
+    parser.add_argument('--min_lr', default=1e-6, type=float,  help="Target LR at the end of optimization.")
     
 
     # Dataset
-    parser.add_argument('--data_location', type=str, help='Dataset location.')
-    parser.add_argument('--volume_size', type=str, help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
+    parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
+    parser.add_argument('--volume_size', default='21,64,64', type=str, help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
 
-    parser.add_argument('--output_dir', type=str, help='Path to save logs and checkpoints.')
-    parser.add_argument('--saveckp_freq', type=int, help='Save checkpoint every x epochs.')
-    parser.add_argument('--seed', type=int, help='Random seed.')
-    parser.add_argument('--num_workers', type=int, help='Number of data loading workers per GPU.')
-    parser.add_argument("--dist_url", type=str, help="set up distributed training")
-    parser.add_argument("--local_rank", type=int)
+    parser.add_argument('--output_dir', default='checkpoints/vit_base/trial', type=str, help='Path to save logs and checkpoints.')
+    parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
+    parser.add_argument('--seed', default=0, type=int, help='Random seed.')
+    parser.add_argument('--num_workers', default=10, type=int, help='Number of data loading workers per GPU.')
+    parser.add_argument("--dist_url", default='env://', type=str, help="set up distributed training")
+    parser.add_argument("--local_rank", default=0, type=int)
     
-    parser.add_argument('--save_recon',type=utils.bool_flag, help='Save reconstructions.')
+    parser.add_argument('--save_recon', default=True, type=utils.bool_flag, help='Save reconstructions.')
     
-    args = parser.parse_args()
+    # Update defaults with config file values if provided
+    if args.config:
+        parser.set_defaults(**config_defaults)
 
-    # Load values from the config YAML file and update the arguments
-    with open(args.config, "r") as config_file:
-        config = yaml.safe_load(config_file)
-
-    for key, value in config.items():
-        if getattr(args, key) is None:
-            setattr(args, key, value)
+    args = parser.parse_args(remaining_argv)
     
     return args
 

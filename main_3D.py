@@ -72,8 +72,8 @@ def get_args():
     # Model parameters
     parser.add_argument('--model', default='vit_base', type=str, choices=['vit_tiny', 'vit_small', 'vit_base', 'vit_custom'], help="Name of architecture")
     parser.add_argument('--drop_path_rate', default=0.1, type=float,  help="stochastic depth rate")
-    parser.add_argument('--patch_size', default='7,16,16', type=str, help='Patch size to divide input sub-volume into; Possible format 7,16,16')
-    
+    parser.add_argument('--patch_size', default='8,8,8', type=str, help='Patch size to divide input sub-volume into; Possible format 7,16,16')
+    parser.add_argument('--upsample', default='vae', type=str, choices=['large_kernel_deconv', 'deconv', 'vae'], help="Upsampling method for reconstruction")
 
     # Training/Optimization parameters
     parser.add_argument('--use_fp16', default=True, type=utils.bool_flag)
@@ -91,7 +91,7 @@ def get_args():
 
     # Dataset
     parser.add_argument('--data_location', default='/path/to/dataset', type=str, help='Dataset location.')
-    parser.add_argument('--volume_size', default='21,64,64', type=str, help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
+    parser.add_argument('--volume_size', default='64,128,128', type=str, help='Volume size to randomly crop from the whole volume; Possible format 21,64,64')
 
     parser.add_argument('--output_dir', default='checkpoints/vit_base/trial', type=str, help='Path to save logs and checkpoints.')
     parser.add_argument('--saveckp_freq', default=20, type=int, help='Save checkpoint every x epochs.')
@@ -175,8 +175,8 @@ def train_SiT(args):
     depth = student.depth
     num_heads = student.num_heads
 
-    student = FullPipline(student, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size))
-    teacher = FullPipline(teacher, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size))
+    student = FullPipline(student, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size, upsample=args.upsample))
+    teacher = FullPipline(teacher, CLSHead(embed_dim, args.out_dim), RECHead_3D(embed_dim, volume_size=args.volume_size, patch_size=args.patch_size, upsample=args.upsample))
     student, teacher = student.cuda(), teacher.cuda()
     
     # synchronize batch norms

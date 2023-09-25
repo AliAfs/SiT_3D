@@ -19,7 +19,8 @@ momentum_teacher: 0.996
 # Model parameters
 model: "vit_base"
 drop_path_rate: 0.1
-patch_size: "7,16,16"
+patch_size: "8,8,8"
+upsample: 'vae'
 
 # Training/Optimization parameters
 use_fp16: True
@@ -34,7 +35,7 @@ min_lr: 1e-6
 
 # Dataset
 data_location: "/path/to/dataset"
-volume_size: "21,64,64"
+volume_size: "64,128,128"
 output_dir: "checkpoints/vit_base/trial"
 saveckp_freq: 20
 seed: 0

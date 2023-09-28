@@ -56,10 +56,10 @@ def dicom_to_npz(args):
                     volume_resampled = zoom(volume, zoom_factors, order=1)
                     
 
-                    # Normalize the volume to [0, 1]
+                    # Scale the volume to [0, 1]
                     #min_value = np.min(volume_resampled)
                     #max_value = np.max(volume_resampled)
-                    #volume_normalized = (volume_resampled - min_value) / (max_value - min_value)
+                    #volume_scaled = (volume_resampled - min_value) / (max_value - min_value)
                     
                     # Save the volume as compressed numpy array npz
                     last_folder_name = os.path.basename(subdirectory_path)

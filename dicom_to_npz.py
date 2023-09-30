@@ -23,6 +23,12 @@ def dicom_to_npz(args):
     output_directory = args.output_dir
     target_voxel_size = tuple(float(x) for x in args.voxel_size.split(','))
 
+    # Check if the output directory exists
+    if not os.path.exists(output_directory):
+        # If not, create the directory
+        os.makedirs(output_directory)
+        print(f"Directory '{output_directory}' created.")
+
     for root, dirs, files in os.walk(root_directory):
         # Iterate over the subdirectories
         for subdirectory in dirs:

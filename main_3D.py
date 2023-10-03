@@ -233,17 +233,21 @@ def train_SiT(args):
                 # track hyperparameters and run metadata
                 config={
                 "model": args.model,
-                "learning_rate": args.lr,
+                "upsample": args.upsample,
                 "depth": depth,
                 "num_heads": num_heads,
                 "out_dim": args.out_dim,
                 "volume_size": args.volume_size,
                 "patch_size": args.patch_size,
                 "epochs": args.epochs,
+                "warmup_epochs": args.warmup_epochs,
+                "learning_rate": args.lr,
                 "batch_size": args.batch_size,
                 "drop_perc": args.drop_perc,
                 "drop_replace": args.drop_replace,
                 "rand_block_perc": args.rand_block_perc,
+                "lambda": args.lmbda,
+                "lambda2": args.lmbda2,
                 })
     for epoch in range(start_epoch, args.epochs):
         data_loader.sampler.set_epoch(epoch)

@@ -314,13 +314,13 @@ class RECHead_3D(nn.Module):
                                                     stride=patch_size)
         elif upsample=='deconv':
             self.conv = nn.Sequential(
-                nn.ConvTranspose3d(in_dim, 256, kernel_size=(3,3,3), stride=(2,2,2), padding=(1,1,1)),
+                nn.ConvTranspose3d(in_dim, in_dim // 2, kernel_size=(3,3,3), stride=(2,2,2), padding=(1,1,1)),
                 nn.ReLU(),
-                nn.ConvTranspose3d(256, 128, kernel_size=(3,3,3), stride=(2,3,3), padding=(0,0,0)),
+                nn.ConvTranspose3d(in_dim // 2, in_dim // 4, kernel_size=(3,3,3), stride=(2,2,2), padding=(0,0,0)),
                 nn.ReLU(),
-                nn.ConvTranspose3d(128, 128, kernel_size=(3,4,4), stride=(2,3,3), padding=(1,0,0)),
+                nn.ConvTranspose3d(in_dim // 4, in_dim // 8, kernel_size=(4,4,4), stride=(2,2,2), padding=(0,0,0)),
                 nn.ReLU(),
-                nn.ConvTranspose3d(128, 1, kernel_size=(1,1,1))
+                nn.ConvTranspose3d(in_dim // 8, 1, kernel_size=(1,1,1)),
             )
         elif upsample=='vae':
             self.conv = nn.Sequential(

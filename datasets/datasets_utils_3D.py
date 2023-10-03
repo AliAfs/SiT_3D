@@ -238,6 +238,14 @@ def random_selected_block(X, rand_block_perc=0.1):
 
     return block
 
+def samplewise_normalize(sample):
+    # Assuming sample is a PyTorch tensor (3D image with one channel)
+    # Normalize the entire volume
+    mean = sample.mean()
+    std = sample.std()
+    normalized_sample = (sample - mean) / std
+    return normalized_sample
+
 class DataAugmentationSiT(object):
     def __init__(self, args):
         
@@ -255,7 +263,8 @@ class DataAugmentationSiT(object):
             #PadAndCrop(output_size=(147, 224, 224)),
             RandomVolumePatch(volume_size=args.volume_size),
             transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomRotation(degrees=10)
+            transforms.RandomRotation(degrees=10),
+            transforms.Lambda(lambda x: samplewise_normalize(x)), # Apply sample-wise normalization
         ])
 
         # second global crop
@@ -266,7 +275,8 @@ class DataAugmentationSiT(object):
             RandomVolumePatch(volume_size=args.volume_size),
             #GrayValueMirror(probability=0.5),
             transforms.RandomHorizontalFlip(p=0.5),
-            transforms.RandomRotation(degrees=10)
+            transforms.RandomRotation(degrees=10),
+            transforms.Lambda(lambda x: samplewise_normalize(x)), # Apply sample-wise normalization
         ])
 
     def __call__(self, image):

@@ -36,7 +36,7 @@ Follow the steps below to successfully run the code in this repository:
 
 ### 1. Download the Data
 
-   - Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
+   - Download the data by referring to the instructions provided in the [*download_data.ipynb*](./download_data.ipynb) notebook.
 
    - In short:
      ```bash
@@ -60,7 +60,7 @@ Follow the steps below to successfully run the code in this repository:
    - Convert the DICOM files into compressed NumPy arrays. Choose one of the following methods:
 
 1. **MeVisLab**
-   - Using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Specify the output directory in the `RunPythonScript` module of the network.
+   - Using the [*network_final.mlab*](./network_final.mlab) in MeVisLab. Specify the output directory in the `RunPythonScript` module of the network.
 
 2. **Python**
    - Run the [*dicom_to_npz.py*](./dicom_to_npz.py) file and specify the following parameters:

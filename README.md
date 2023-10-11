@@ -9,7 +9,7 @@ Link to the original repository: [Original Repository](https://github.com/Sara-A
 
 In this project, our objective is to adapt and train a self-supervised vision transformer (SiT) for volumetric medical imaging. Leveraging a dataset of 3D CT scans, we aim to harness the power of vision transformers coupled with self-supervised learning (SSL) to learn a meaningful representation of the data. This learned representation can then be utilized to assess the quality of generated medical image data by measuring the distance between synthetic and real volumes in the learned feature space. By doing so, we hope to overcome the limitations of traditional evaluation metrics and provide a more reliable and domain-specific assessment of the generated medical images.
 
-### Data 
+## Data 
 For this study, we used data from the Lung Image Database Consortium (LIDC) Collection, hosted within the IDC repository. The LIDC database contains spiral CT lung scans with marked-up annotations of lesions, specifically designed to aid research on lung cancer detection and diagnosis.
 The Imaging Data Commons (IDC) serves as a data repository and platform for sharing cancer imaging data, created as part of the Cancer Research Data Commons (CRDC) initiative by the National Cancer Institute (NCI) in the United States.
 
@@ -52,17 +52,59 @@ python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%Study
 
 `python dicom_to_npz.py --clean_folder_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2`
 
-## Prepare and conduct the actual training
 
-- Obtain and set `Weights and Biases` API key
-  - Create an account at wandb.ai
-  - You'll find your API key in the start page (a kind of default readme)
-  - Log into W&B through the command line (using wandb login --relogin), and provide the API key.
-- Run the [`main_3D.py`](./main_test.py) file and make sure to specify the 'data_location' argument.
-  > python main_test.py --batch_size 16 --epochs 100 --data_location './data'
+## Project Setup and Training
 
-  **Note:** There are more arguments that can be specified!
+### Weights and Biases Configuration
 
+1. **Create a Weights and Biases Account:**
+   - Sign up for an account at [wandb.ai](https://wandb.ai).
+
+2. **Obtain Your API Key:**
+   - After logging in, you'll find your API key on the start page, which is a kind of default readme.
+   - You'll set the API key and project name later as arguments.
+
+### Docker Container Setup
+
+4. **Build the Docker Container:**
+   - Ensure Docker is installed on your machine.
+   - In the project directory, run the following command to build the Docker container:
+     ```bash
+     docker build -t your-image-name .
+     ```
+
+5. **Run the Docker Container:**
+   - To run the container and mount your local code, use the following command:
+     ```bash
+     docker run -v /path/to/code/in/local/machine:/app -it your-image-name
+     ```
+     If you are already in the directory, use:
+     ```bash
+     docker run -v $(pwd):/app -it your-image-name
+     ```
+
+### Training Process
+
+6. **Configuration Options:**
+   - The training script supports multiple ways of specifying parameters:
+      - **Config.yaml File:**
+        - If a `config.yaml` file is provided, the script reads arguments from this file. 
+        - Example:
+          ```bash
+          python main_3D.py --config_file config.yaml
+          ```
+
+      - **Python Script Defaults:**
+        - If no config file is provided, default values specified in the Python script are used.
+
+      - **Command Line Arguments:**
+        - Arguments provided in the command line take precedence over both config file values and defaults in the script.
+        - Example:
+          ```bash
+          python main_3D.py --batch_size 32 --epochs 50 --data_location './data'
+          ```
+
+   **Note:** You can customize the training further by specifying additional arguments. Refer to the documentation for more options.
 
 
 # FAQ and Troubleshooting

@@ -29,29 +29,49 @@ pip install -r requirements.txt
 ```
 # Steps to Run the Code
 
-## Prepare the Data
 Follow the steps below to successfully run the code in this repository:
 
-- Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
-- In short:
-  - `docker pull peakcom/s5cmd`
-  - `docker run -rm -v /where/to/download/to/locally:/aws -v ~/.aws:/root/.aws -v $(pwd):/app /s5cmd run /app/cohort_1076_20230617_24853_gcs.s5cmd`
-- Of course, replace `/where/to/download/to/locally` with an existing path on your machine.
+## Prepare the Data
 
-- Clean the file structure of the downloaded data. We want it to be in the folder structure `PatientID-StudyInstanceUID-SeriesInstanceUID-SOPInstanceUID`
-```
-git clone https://github.com/pieper/dicomsort.git
-pip install pydicom
-python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%StudyInstanceUID/%SeriesInstanceUID/%SOPInstanceUID.dcm
-```
-- **Note:** Replace `dicom_files_dir` with the directory of saved dicom files.
 
-- Convert the DICOM files into compressed NumPy arrays. There are two possible methods you can use:
-  - **MeVisLab:** Using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Make sure to specify the output directory in the `RunPythonScript` module of the network.
-  - **Python:** Run the [dicom_to_npz.py](./dicom_to_npz.py) file and make sure to specify the `clean_folder_dir`(directory containing the DICOM files in a clean structure.), and `output_dir` (directory where the output files will be saved). Optionally, you can specify the voxel size. The default value is 2,2,2.
+### 1. Download the Data
 
-`python dicom_to_npz.py --clean_folder_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2`
+   - Download the data by referring to the instructions provided in the [`download_data.ipynb`](./download_data.ipynb) notebook.
 
+   - In short:
+     ```bash
+     docker pull peakcom/s5cmd
+     docker run --rm -v /where/to/download/to/locally:/aws -v ~/.aws:/root/.aws -v $(pwd):/app /s5cmd run /app/cohort_1076_20230617_24853_gcs.s5cmd
+     ```
+   - Of course, replace `/where/to/download/to/locally` with an existing path on your machine.
+
+### 2. Clean the File Structure
+   - Clean the file structure of the downloaded data. We want it to be in the folder structure: `PatientID-StudyInstanceUID-SeriesInstanceUID-SOPInstanceUID`
+
+
+     ```bash
+     git clone https://github.com/pieper/dicomsort.git
+     pip install pydicom
+     python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%StudyInstanceUID/%SeriesInstanceUID/%SOPInstanceUID.dcm
+     ```
+   - Replace `dicom_files_dir` with the directory of saved DICOM files.
+
+### 3. Convert DICOM Files to Compressed NumPy Arrays
+   - Convert the DICOM files into compressed NumPy arrays. Choose one of the following methods:
+
+1. **MeVisLab**
+   - Using the [`network_final.mlab`](./network_final.mlab) in MeVisLab. Specify the output directory in the `RunPythonScript` module of the network.
+
+2. **Python**
+   - Run the [*dicom_to_npz.py*](./dicom_to_npz.py) file and specify the following parameters:
+
+
+     ```bash
+     python dicom_to_npz.py --clean_folder_dir /path/to/sorted_folder --output_dir /path/to/output_folder --voxel_size 2,2,2
+     ```
+   - `clean_folder_dir`: Directory containing the DICOM files in a clean structure.
+   - `output_dir`: Directory where the output files will be saved.
+   - `voxel_size` (Optional): Specify the voxel size. The default value is 2,2,2.
 
 ## Project Setup and Training
 

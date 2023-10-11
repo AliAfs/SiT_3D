@@ -54,7 +54,7 @@ Follow the steps below to successfully run the code in this repository:
      pip install pydicom
      python dicomsort/dicomsort.py -u dicom_files_dir cohort_sorted/%PatientID/%StudyInstanceUID/%SeriesInstanceUID/%SOPInstanceUID.dcm
      ```
-   - Replace `dicom_files_dir` with the directory of saved DICOM files.
+   - Of course, replace `dicom_files_dir` with the directory of saved DICOM files.
 
 ### 3. Convert DICOM Files to Compressed NumPy Arrays
    - Convert the DICOM files into compressed NumPy arrays. Choose one of the following methods:
@@ -87,7 +87,6 @@ Follow the steps below to successfully run the code in this repository:
 ### Docker Container Setup
 
 4. **Build the Docker Container:**
-   - Ensure Docker is installed on your machine.
    - In the project directory, run the following command to build the Docker container:
      ```bash
      docker build -t your-image-name .

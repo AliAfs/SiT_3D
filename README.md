@@ -131,21 +131,5 @@ Follow the steps below to successfully run the code in this repository:
 * If you use WSL2 on a Windows system, you might encounter an error `Libcudnn_cnn_infer.so.8 library can not be found`. The most likely reason is that the `LD_LIBRARY_PATH` isn't set up sufficiently in WSL2. Run the following command, or add it to .bashrc: `export LD_LIBRARY_PATH=/usr/lib/wsl/lib:$LD_LIBRARY_PATH`. (If this does not help, check if the path is correct using `ldconfig -p | grep cuda`). [Reference](https://discuss.pytorch.org/t/libcudnn-cnn-infer-so-8-library-can-not-found/164661).
 * If you interrupt the training and your training process keeps blocking the distributed training socket, you may need to kill the process manually. On the command line, use `kill $ (lsof -t -i:<PortNumber>)` (Port is 29500 for this code.)
 
-# Reference
-
-
-```
-@article{atito2021sit,
-
-  title={SiT: Self-supervised vIsion Transformer},
-
-  author={Atito, Sara and Awais, Muhammad and Kittler, Josef},
-
-  journal={arXiv preprint arXiv:2104.03602},
-
-  year={2021}
-
-}
-```
 
 
